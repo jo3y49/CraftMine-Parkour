@@ -12,4 +12,5 @@ javac tage\physics\JBullet\*.java
 javac tage\ai\behaviortrees\*.java
 javac tage\audio\*.java
 javac tage\audio\joal\*.java
+javac server\*.java
 javac -Xlint:unchecked a2/*.java
