@@ -4,9 +4,14 @@ import tage.*;
 import tage.shapes.*;
 import tage.input.*;
 import tage.input.action.*;
+import tage.networking.IGameConnection.ProtocolType;
 import tage.nodeControllers.*;
 import net.java.games.input.Component.Identifier.*;
+
+import java.io.IOException;
 import java.lang.Math;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import org.joml.*;
 import com.jogamp.opengl.util.gl2.GLUT;
@@ -16,23 +21,43 @@ import a2.Shapes.*;
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
+	private InputManager im;
+	private GhostManager gm;
+	private NodeController rc, fc;
+
 	private double lastFrameTime, currFrameTime;
 	private double elapsTime;
-	private InputManager im;
+
 	private CameraOrbit3D orbitController;
-	private NodeController rc, fc;
-	private GameObject avatar, cub, cubM, tor, torM, sph, sphM, pyr, ground, x, y, z;
-	private ObjShape dolS, cubS, torS, pyrS, sphS, groundS, linxS, linyS, linzS;
-	private TextureImage doltx, cubePattern;
 	private Light light1;
+
+	private GameObject avatar, cub, cubM, tor, torM, sph, sphM, pyr, ground, x, y, z;
+	private ObjShape dolS, cubS, torS, pyrS, sphS, groundS, linxS, linyS, linzS, ghostS;
+	private TextureImage doltx, cubePattern, ghostT;
+
+	private String serverAddress;
+	private int serverPort;
+	private ProtocolType serverProtocol;
+	private ProtocolClient protClient;
+	private boolean isClientConnected = false;
+
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
 
 
-	public MyGame() { super(); }
+	public MyGame(String serverAddress, int serverPort, String protocol) { 
+		super(); 
+		gm = new GhostManager(this);
+		this.serverAddress = serverAddress;
+		this.serverPort = serverPort;
+		if (protocol.toUpperCase().compareTo("TCP") == 0)
+			this.serverProtocol = ProtocolType.TCP;
+		else 
+			this.serverProtocol = ProtocolType.UDP;
+	}
 
 	public static void main(String[] args)
-	{	MyGame game = new MyGame();
+	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
@@ -41,6 +66,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadShapes()
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
+		ghostS = new Sphere();
 		cubS = new Cube();
 		torS = new Torus(.5f, .2f, 48);
 		pyrS = new ManualPyramid();
@@ -55,6 +81,7 @@ public class MyGame extends VariableFrameRateGame
 	public void loadTextures()
 	{	
 		doltx = new TextureImage("Dolphin_HighPolyUV.png");
+		ghostT = new TextureImage("redDolphin.jpg");
 		cubePattern = new TextureImage("Cube_Decoration.png");
 	}	 
 
@@ -206,9 +233,9 @@ public class MyGame extends VariableFrameRateGame
 
 		orbitController = new CameraOrbit3D(cM, avatar, ground, engine);
 
-		StraightMovementController moveController = new StraightMovementController(this);
-		StraightMovement moveForward = new StraightMovement(this, true);
-		StraightMovement moveBackward = new StraightMovement(this, false);
+		StraightMovementController moveController = new StraightMovementController(this, protClient);
+		StraightMovement moveForward = new StraightMovement(this, protClient, true);
+		StraightMovement moveBackward = new StraightMovement(this, protClient, false);
 
 		YawController YawController = new YawController(this);
 		Yaw yawLeft = new Yaw(this, true);
@@ -237,6 +264,8 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
 		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
 		setPressedActionToKeyboard(Key.SPACE, toggle);
+
+		setupNetworking();
 	}
 	
 	@Override
@@ -246,12 +275,20 @@ public class MyGame extends VariableFrameRateGame
 		currFrameTime = System.currentTimeMillis();
 		elapsTime += (currFrameTime - lastFrameTime) / 1000.0;
 
+		checkPrizeCollision();
+		double spinSpeed = 30;
+		float spinDistance = 1;
+		for (int i = 0; i < collectedPrizes.size(); i++)
+			{
+				activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
+				spinSpeed += 20;
+				spinDistance += .5f;
+			}
+
 		// build and set HUD
 		String collectedStr = Integer.toString(collectedPrizes.size());
 		String dispStr1 = "Collected Prizes = " + collectedStr;
-
 		String dispStr2 = avatar.getWorldLocation().toString();
-
 		Vector3f hudColor = new Vector3f(1,1,1);
 
 		(engine.getHUDmanager()).setHUD1(dispStr1, hudColor, 15, 15);
@@ -263,18 +300,9 @@ public class MyGame extends VariableFrameRateGame
 		// update inputs and camera
 		im.update((float)elapsTime);
 
-		checkPrizeCollision();
-
-		double spinSpeed = 30;
-		float spinDistance = 1;
-		for (int i = 0; i < collectedPrizes.size(); i++)
-			{
-				activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
-				spinSpeed += 20;
-				spinDistance += .5f;
-			}
-
 		orbitController.updateCameraPosition();
+
+		processNetworking((float)elapsTime);
 		
 	}
 
@@ -335,7 +363,47 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public GameObject getAvatar() { return avatar; }
-
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
-	
+	public Engine getEngine() { return engine; }
+
+	// ------------Networking-----------------------
+
+	public ObjShape getGhostShape() { return ghostS; }
+	public TextureImage getGhostTexture() { return ghostT; }
+	public GhostManager getGhostManager() { return gm; }
+
+	private void setupNetworking(){
+		isClientConnected = false;
+		try{
+			protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+		} catch (UnknownHostException e){
+			e.printStackTrace();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+		if (protClient == null){
+			System.out.println("missing protocol host");
+		} else {
+			System.out.println("sending join message to protocol host");
+			protClient.sendJoinMessage();
+		}
+	}
+
+	protected void processNetworking(float elapsTime){
+		if (protClient != null){
+			protClient.processPackets();
+		}
+	}
+
+	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
+	public void setIsConnected(boolean value) { this.isClientConnected = value; }
+
+	private class SendCloseConnectionPacketAction extends AbstractInputAction{
+		@Override
+		public void performAction(float time, net.java.games.input.Event evt){
+			if (protClient != null && isClientConnected == true){
+				protClient.sendByeMessage();
+			}
+		}
+	}
 }
