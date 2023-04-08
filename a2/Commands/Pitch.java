@@ -15,7 +15,7 @@ public class Pitch extends AbstractInputAction
     @Override
     public void performAction(float time, Event e)
     {
-        pitchSpeed = game.getFrameTime()*.002f;
+        pitchSpeed = game.getElapsTime()*.002f;
 
         game.getAvatar().pitch(up ? -pitchSpeed : pitchSpeed);
     }

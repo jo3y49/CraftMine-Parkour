@@ -15,7 +15,7 @@ public class Yaw extends AbstractInputAction
     @Override
     public void performAction(float time, Event e)
     {
-        rotationSpeed = game.getFrameTime() * .002f;
+        rotationSpeed = game.getElapsTime() * .002f;
         
         game.getAvatar().yaw(left ? rotationSpeed : -rotationSpeed);
     }

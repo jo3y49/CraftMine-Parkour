@@ -24,9 +24,7 @@ public class MyGame extends VariableFrameRateGame
 	private InputManager im;
 	private GhostManager gm;
 	private NodeController rc, fc;
-
-	private double lastFrameTime, currFrameTime;
-	private double elapsTime;
+	private double lastFrameTime, elapsTime;
 
 	private CameraOrbit3D orbitController;
 	private Light light1;
@@ -213,7 +211,6 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void initializeGame()
 	{	lastFrameTime = System.currentTimeMillis();
-		currFrameTime = System.currentTimeMillis();
 		elapsTime = 0.0;
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
@@ -271,9 +268,8 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void update()
 	{	
-		lastFrameTime = currFrameTime;
-		currFrameTime = System.currentTimeMillis();
-		elapsTime += (currFrameTime - lastFrameTime) / 1000.0;
+		elapsTime = System.currentTimeMillis() - lastFrameTime;
+		lastFrameTime = System.currentTimeMillis();
 
 		checkPrizeCollision();
 		double spinSpeed = 30;
@@ -363,7 +359,7 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public GameObject getAvatar() { return avatar; }
-	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
+	public float getElapsTime() { return (float)elapsTime; }
 	public Engine getEngine() { return engine; }
 
 	// ------------Networking-----------------------

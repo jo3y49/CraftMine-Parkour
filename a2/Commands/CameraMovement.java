@@ -19,7 +19,7 @@ public class CameraMovement extends AbstractInputAction
     @Override
     public void performAction(float time, Event e)
     {
-        float moveSpeed = game.getFrameTime()*.005f;
+        float moveSpeed = game.getElapsTime()*.005f;
         
         switch (dir)
         {

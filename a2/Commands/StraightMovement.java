@@ -23,9 +23,9 @@ public class StraightMovement extends AbstractInputAction
         av = game.getAvatar();
 
         if (forward)
-            moveSpeed = game.getFrameTime()*.006f;
+            moveSpeed = game.getElapsTime()*.006f;
         else    
-            moveSpeed = game.getFrameTime()*-.006f;
+            moveSpeed = game.getElapsTime()*-.006f;
 
         av.straightMovement(moveSpeed); 
         protClient.sendMoveMessage(av.getWorldLocation());
