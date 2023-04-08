@@ -12,7 +12,6 @@ public class StraightMovement extends AbstractInputAction
     private MyGame game;
     private boolean forward;
     private float moveSpeed;
-    private GameObject av;
     private ProtocolClient protClient;
 
     public StraightMovement(MyGame g, ProtocolClient p, boolean f) { game = g; protClient = p; forward = f;  }
@@ -20,7 +19,7 @@ public class StraightMovement extends AbstractInputAction
     @Override
     public void performAction(float time, Event e)
     {   
-        av = game.getAvatar();
+        GameObject av = game.getAvatar();
 
         if (forward)
             moveSpeed = game.getElapsTime()*.006f;

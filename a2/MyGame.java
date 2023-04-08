@@ -23,25 +23,20 @@ public class MyGame extends VariableFrameRateGame
 	private static Engine engine;
 	private InputManager im;
 	private GhostManager gm;
-	private NodeController rc, fc;
 	private double lastFrameTime, elapsTime;
 
 	private CameraOrbit3D orbitController;
 	private Light light1;
 
-	private GameObject avatar, cub, cubM, tor, torM, sph, sphM, pyr, ground, x, y, z;
-	private ObjShape dolS, cubS, torS, pyrS, sphS, groundS, linxS, linyS, linzS, ghostS;
-	private TextureImage doltx, cubePattern, ghostT;
+	private GameObject avatar, ground, x, y, z;
+	private ObjShape dolS, groundS, linxS, linyS, linzS, ghostS;
+	private TextureImage doltx, ghostT;
 
 	private String serverAddress;
 	private int serverPort;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protClient;
 	private boolean isClientConnected = false;
-
-	private ArrayList<GameObject> prizes = new ArrayList<>();
-	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
-
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
 		super(); 
@@ -65,10 +60,6 @@ public class MyGame extends VariableFrameRateGame
 	public void loadShapes()
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
 		ghostS = new Sphere();
-		cubS = new Cube();
-		torS = new Torus(.5f, .2f, 48);
-		pyrS = new ManualPyramid();
-		sphS = new Sphere();
 		groundS = new Plane();
 		linxS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(5f, 0f, 0f));
 		linyS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 5f, 0f));
@@ -80,7 +71,6 @@ public class MyGame extends VariableFrameRateGame
 	{	
 		doltx = new TextureImage("Dolphin_HighPolyUV.png");
 		ghostT = new TextureImage("redDolphin.jpg");
-		cubePattern = new TextureImage("Cube_Decoration.png");
 	}	 
 
 	@Override
@@ -95,66 +85,6 @@ public class MyGame extends VariableFrameRateGame
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
 		avatar.setLocalRotation(initialRotation);
-
-		cub = new GameObject(GameObject.root(), cubS, cubePattern);
-		initialTranslation = (new Matrix4f()).translation(20,1,-10);
-		initialScale = (new Matrix4f()).scaling(.6f);
-		cub.setLocalTranslation(initialTranslation);
-		cub.setLocalScale(initialScale);
-		prizes.add(cub);
-
-		sph = new GameObject(GameObject.root(), sphS);
-		initialTranslation = (new Matrix4f()).translation(-25,1,-5);
-		initialScale = (new Matrix4f()).scaling(.7f);
-		sph.setLocalTranslation(initialTranslation);
-		sph.setLocalScale(initialScale);
-		prizes.add(sph);
-
-		tor = new GameObject(GameObject.root(), torS);
-		initialTranslation = (new Matrix4f()).translation(11, 1, 10);
-		tor.setLocalTranslation(initialTranslation);
-		prizes.add(tor);
-
-		//build pyramid
-		pyr = new GameObject(GameObject.root(), pyrS);
-		initialTranslation = (new Matrix4f()).translation(0,2,0);
-		pyr.setLocalTranslation(initialRotation);
-		initialScale = (new Matrix4f()).scaling(2f);
-		pyr.setLocalScale(initialScale);
-		pyr.getRenderStates().hasLighting(true);
-
-		cubM = new GameObject(GameObject.root(), cubS, cubePattern);
-		initialTranslation = (new Matrix4f()).translation(.3f,2,.6f);
-		cubM.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(.06f);
-		cubM.setLocalScale(initialScale);
-		cubM.getRenderStates().setColor(new Vector3f(1,1,1));
-		cubM.setParent(pyr);
-		cubM.propagateTranslation(true);
-		cubM.propagateRotation(false);
-		cubM.getRenderStates().disableRendering();
-
-		sphM = new GameObject(GameObject.root(), sphS);
-		initialTranslation = (new Matrix4f()).translation(-.6f,2,0);
-		sphM.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(.07f);
-		sphM.setLocalScale(initialScale);
-		sphM.getRenderStates().setColor(new Vector3f(1,1,1));
-		sphM.setParent(pyr);
-		sphM.propagateTranslation(true);
-		sphM.propagateRotation(false);
-		sphM.getRenderStates().disableRendering();
-
-		torM = new GameObject(GameObject.root(), torS);
-		initialTranslation = (new Matrix4f()).translation(.3f,2,-.6f);
-		torM.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(.1f);
-		torM.setLocalScale(initialScale);
-		torM.getRenderStates().setColor(new Vector3f(1,1,1));
-		torM.setParent(pyr);
-		torM.propagateTranslation(true);
-		torM.propagateRotation(false);
-		torM.getRenderStates().disableRendering();
 
 		ground = new GameObject(GameObject.root(), groundS);
 		initialTranslation = (new Matrix4f()).translation(0,0,0);
@@ -214,15 +144,6 @@ public class MyGame extends VariableFrameRateGame
 		elapsTime = 0.0;
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
-		rc = new RotationController(engine, new Vector3f(0,1,0), .001f);
-		fc = new FlyController(engine, .0005f);
-
-		(engine.getSceneGraph()).addNodeController(rc);
-		(engine.getSceneGraph()).addNodeController(fc);
-
-		rc.toggle();
-		fc.toggle();
-
 		im = engine.getInputManager();
 
 		Camera cM = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
@@ -271,19 +192,9 @@ public class MyGame extends VariableFrameRateGame
 		elapsTime = System.currentTimeMillis() - lastFrameTime;
 		lastFrameTime = System.currentTimeMillis();
 
-		checkPrizeCollision();
-		double spinSpeed = 30;
-		float spinDistance = 1;
-		for (int i = 0; i < collectedPrizes.size(); i++)
-			{
-				activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
-				spinSpeed += 20;
-				spinDistance += .5f;
-			}
-
 		// build and set HUD
-		String collectedStr = Integer.toString(collectedPrizes.size());
-		String dispStr1 = "Collected Prizes = " + collectedStr;
+		
+		String dispStr1 = "Dolphins are EPIC!";
 		String dispStr2 = avatar.getWorldLocation().toString();
 		Vector3f hudColor = new Vector3f(1,1,1);
 
@@ -300,41 +211,6 @@ public class MyGame extends VariableFrameRateGame
 
 		processNetworking((float)elapsTime);
 		
-	}
-
-	private void checkPrizeCollision()
-	{
-		for (int i = 0; i < prizes.size(); i++)
-		{
-			if (avatar.getWorldLocation().distance(prizes.get(i).getLocalLocation()) <= 3f)
-			{
-				rc.addTarget(prizes.get(i));
-				fc.addTarget(prizes.get(i));
-				GameObject mini = new GameObject(GameObject.root());
-
-				if (prizes.get(i) == cub)
-					mini = cubM;
-				else if (prizes.get(i) == tor)
-					mini = torM;
-				else if (prizes.get(i) == sph)
-					mini = sphM;
-
-				collectedPrizes.add(mini);
-				mini.getRenderStates().enableRendering();
-				
-				prizes.remove(i);
-				if (prizes.size() == 0)
-					rc.addTarget(pyr);
-			}
-		}
-	}
-
-	private void activatePrize(GameObject prize, double speed, float location)
-	{
-		Matrix4f currentTranslation = prize.getLocalTranslation();
-		currentTranslation.translation((float)Math.sin(Math.toRadians(elapsTime * speed)) * location,
-			2f, (float)Math.cos(Math.toRadians(elapsTime * speed)) * location);
-		prize.setLocalTranslation(currentTranslation);
 	}
 
 	private void setHeldActionToKeyboard(net.java.games.input.Component.Identifier.Key key, IAction action)

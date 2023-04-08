@@ -8,14 +8,13 @@ public class Pitch extends AbstractInputAction
 {
     private MyGame game;
     private boolean up;
-    private float pitchSpeed;
 
     public Pitch (MyGame g, boolean u) { game = g; up = u; }
 
     @Override
     public void performAction(float time, Event e)
     {
-        pitchSpeed = game.getElapsTime()*.002f;
+        float pitchSpeed = game.getElapsTime()*.002f;
 
         game.getAvatar().pitch(up ? -pitchSpeed : pitchSpeed);
     }
