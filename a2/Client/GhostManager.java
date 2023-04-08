@@ -1,4 +1,4 @@
-package a2;
+package a2.Client;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.Vector;
 import org.joml.*;
 
+import a2.MyGame;
 import tage.*;
 
 public class GhostManager

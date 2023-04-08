@@ -1,4 +1,4 @@
-package a2;
+package a2.Client;
 
 import java.util.UUID;
 

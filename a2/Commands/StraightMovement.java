@@ -5,7 +5,7 @@ import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
 
 import a2.MyGame;
-import a2.ProtocolClient;
+import a2.Client.ProtocolClient;
 
 public class StraightMovement extends AbstractInputAction
 {

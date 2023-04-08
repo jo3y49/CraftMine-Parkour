@@ -15,6 +15,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import org.joml.*;
 import com.jogamp.opengl.util.gl2.GLUT;
+
+import a2.Client.GhostManager;
+import a2.Client.ProtocolClient;
 import a2.Commands.*;
 import a2.Shapes.*;
 

@@ -2,7 +2,7 @@ package a2.Commands;
 
 import tage.input.action.AbstractInputAction;
 import a2.MyGame;
-import a2.ProtocolClient;
+import a2.Client.ProtocolClient;
 import net.java.games.input.Event;
 
 public class StraightMovementController extends AbstractInputAction
