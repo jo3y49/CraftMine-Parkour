@@ -6,8 +6,8 @@ import tage.input.*;
 import tage.input.action.*;
 import tage.networking.IGameConnection.ProtocolType;
 import tage.nodeControllers.*;
-import net.java.games.input.Component.Identifier.*;
 
+import net.java.games.input.Component.Identifier.*;
 import java.io.IOException;
 import java.lang.Math;
 import java.net.InetAddress;
@@ -16,8 +16,7 @@ import java.util.ArrayList;
 import org.joml.*;
 import com.jogamp.opengl.util.gl2.GLUT;
 
-import a2.Client.GhostManager;
-import a2.Client.ProtocolClient;
+import a2.Client.*;
 import a2.Commands.*;
 import a2.Shapes.*;
 
@@ -144,7 +143,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void initializeGame()
 	{	lastFrameTime = System.currentTimeMillis();
-		elapsTime = 0.0;
+
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
 		im = engine.getInputManager();
@@ -154,9 +153,9 @@ public class MyGame extends VariableFrameRateGame
 
 		orbitController = new CameraOrbit3D(cM, avatar, ground, engine);
 
-		StraightMovementController moveController = new StraightMovementController(this, protClient);
-		StraightMovement moveForward = new StraightMovement(this, protClient, true);
-		StraightMovement moveBackward = new StraightMovement(this, protClient, false);
+		StraightMovementController moveController = new StraightMovementController(this);
+		StraightMovement moveForward = new StraightMovement(this, true);
+		StraightMovement moveBackward = new StraightMovement(this, false);
 
 		YawController YawController = new YawController(this);
 		Yaw yawLeft = new Yaw(this, true);
@@ -246,6 +245,7 @@ public class MyGame extends VariableFrameRateGame
 	public ObjShape getGhostShape() { return ghostS; }
 	public TextureImage getGhostTexture() { return ghostT; }
 	public GhostManager getGhostManager() { return gm; }
+	public ProtocolClient getProtClient() { return protClient; } 
 
 	private void setupNetworking(){
 		isClientConnected = false;
