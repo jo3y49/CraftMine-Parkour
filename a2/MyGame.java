@@ -21,12 +21,18 @@ public class MyGame extends VariableFrameRateGame
 	private InputManager im;
 	private CameraOrbit3D orbitController;
 	private NodeController rc, fc;
-	private GameObject avatar, cub, cubM, tor, torM, sph, sphM, pyr, ground, x, y, z;
-	private ObjShape dolS, cubS, torS, pyrS, sphS, groundS, linxS, linyS, linzS;
+	private GameObject avatar, cub, cubM, tor, torM, sph, sphM, pyr,  x, y, z;
+	private ObjShape dolS, cubS, torS, pyrS, sphS, linxS, linyS, linzS;
 	private TextureImage doltx, cubePattern;
 	private Light light1;
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
+	
+	// terrain/skybox variables
+	private GameObject dolphin, terr;
+	private ObjShape terrS;
+	private TextureImage hills, grass;
+	private int fluffyClouds, lakeIslands; // skyboxes
 
 
 	public MyGame() { super(); }
@@ -45,10 +51,12 @@ public class MyGame extends VariableFrameRateGame
 		torS = new Torus(.5f, .2f, 48);
 		pyrS = new ManualPyramid();
 		sphS = new Sphere();
-		groundS = new Plane();
 		linxS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(5f, 0f, 0f));
 		linyS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 5f, 0f));
 		linzS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, -5f));
+
+		//terrain
+		terrS = new TerrainPlane(1000); // pixels per axis = 1000x1000
 	}
 
 	@Override
@@ -56,7 +64,21 @@ public class MyGame extends VariableFrameRateGame
 	{	
 		doltx = new TextureImage("Dolphin_HighPolyUV.png");
 		cubePattern = new TextureImage("Cube_Decoration.png");
+
+		//Need to make hill/grass textures
+		hills = new TextureImage("hills.jpg");
+		grass = new TextureImage("Grass.jpg");
 	}	 
+
+	//skybox load
+	@Override
+	public void loadSkyBoxes()
+	{ fluffyClouds = (engine.getSceneGraph()).loadCubeMap("fluffyClouds");
+	lakeIslands = (engine.getSceneGraph()).loadCubeMap("lakeIslands");
+	(engine.getSceneGraph()).setActiveSkyBoxTexture(fluffyClouds);
+	(engine.getSceneGraph()).setSkyBoxEnabled(true);
+	}
+
 
 	@Override
 	public void buildObjects()
@@ -131,11 +153,11 @@ public class MyGame extends VariableFrameRateGame
 		torM.propagateRotation(false);
 		torM.getRenderStates().disableRendering();
 
-		ground = new GameObject(GameObject.root(), groundS);
-		initialTranslation = (new Matrix4f()).translation(0,0,0);
-		ground.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(50f);
-		ground.setLocalScale(initialScale);
+		// ground = new GameObject(GameObject.root(), groundS);
+		// initialTranslation = (new Matrix4f()).translation(0,0,0);
+		// ground.setLocalTranslation(initialTranslation);
+		// initialScale = (new Matrix4f()).scaling(50f);
+		// ground.setLocalScale(initialScale);
 
 		// add X, Y, -Z axes
 		x = new GameObject(GameObject.root(), linxS);
@@ -147,6 +169,15 @@ public class MyGame extends VariableFrameRateGame
 		(x.getRenderStates()).disableRendering();
 		(y.getRenderStates()).disableRendering();
 		(z.getRenderStates()).disableRendering();
+
+
+		// build terrain object
+		terr = new GameObject(GameObject.root(), terrS, grass);
+		initialTranslation = (new Matrix4f()).translation(0f,0f,0f);
+		terr.setLocalTranslation(initialTranslation);
+		initialScale = (new Matrix4f()).scaling(20.0f, 1.0f, 20.0f);
+		terr.setLocalScale(initialScale);
+		terr.setHeightMap(hills);
 	}
 
 	@Override
@@ -204,7 +235,7 @@ public class MyGame extends VariableFrameRateGame
 		Camera cM = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
 		Camera cS = (engine.getRenderSystem()).getViewport("SMALL").getCamera();
 
-		orbitController = new CameraOrbit3D(cM, avatar, ground, engine);
+		orbitController = new CameraOrbit3D(cM, avatar, terr, engine);
 
 		StraightMovementController moveController = new StraightMovementController(this);
 		StraightMovement moveForward = new StraightMovement(this, true);
