@@ -30,9 +30,9 @@ public class MyGame extends VariableFrameRateGame
 	private CameraOrbit3D orbitController;
 	private Light light1;
 
-	private GameObject avatar, ground, x, y, z;
-	private ObjShape dolS, groundS, linxS, linyS, linzS, ghostS;
-	private TextureImage doltx, ghostT;
+	private GameObject avatar, ground, candle, x, y, z;
+	private ObjShape dolS, groundS, linxS, linyS, linzS, ghostS, candS;
+	private TextureImage doltx, ghostT, candT;
 
 	private String serverAddress;
 	private int serverPort;
@@ -63,6 +63,7 @@ public class MyGame extends VariableFrameRateGame
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
 		ghostS = new Sphere();
 		groundS = new Plane();
+		candS = new ImportedModel("Candle.obj");
 		linxS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(5f, 0f, 0f));
 		linyS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 5f, 0f));
 		linzS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, -5f));
@@ -73,6 +74,7 @@ public class MyGame extends VariableFrameRateGame
 	{	
 		doltx = new TextureImage("Dolphin_HighPolyUV.png");
 		ghostT = new TextureImage("redDolphin.jpg");
+		candT = new TextureImage("Candle.png");
 	}	 
 
 	@Override
@@ -93,6 +95,12 @@ public class MyGame extends VariableFrameRateGame
 		ground.setLocalTranslation(initialTranslation);
 		initialScale = (new Matrix4f()).scaling(50f);
 		ground.setLocalScale(initialScale);
+
+		candle = new GameObject(GameObject.root(), candS, candT);
+		initialTranslation = (new Matrix4f()).translation(0,0,0);
+		initialScale = (new Matrix4f()).scaling(30.0f);
+		avatar.setLocalTranslation(initialTranslation);
+		avatar.setLocalScale(initialScale);
 
 		// add X, Y, -Z axes
 		x = new GameObject(GameObject.root(), linxS);
