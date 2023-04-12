@@ -5,6 +5,7 @@ import tage.shapes.*;
 import tage.input.*;
 import tage.input.action.*;
 import tage.nodeControllers.*;
+import tage.networking.IGameConnection.ProtocolType;
 import net.java.games.input.Component.Identifier.*;
 import java.lang.Math;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import org.joml.*;
 import com.jogamp.opengl.util.gl2.GLUT;
 import a2.Commands.*;
 import a2.Shapes.*;
+import a2.Client.*;
 //scripting imports
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -20,20 +22,27 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.*;
 import java.util.*;
+//networking imports
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
-	private double lastFrameTime, currFrameTime;
-	private double elapsTime;
 	private InputManager im;
-	private CameraOrbit3D orbitController;
+	private GhostManager gm;
+	private double lastFrameTime, currFrameTime, elapsTime;
+
 	private NodeController rc, fc;
-	private GameObject avatar, cub, cubM, tor, torM, sph, sphM, pyr,  x, y, z;
-	private ObjShape dolS, cubS, torS, pyrS, sphS, linxS, linyS, linzS;
-	private TextureImage doltx, cubePattern;
+	private CameraOrbit3D orbitController;
 	private Light light1;
+
+	private GameObject avatar, candle, cub, cubM, tor, torM, sph, sphM, pyr,  x, y, z;
+	private ObjShape dolS, ghostS, candS, cubS, torS, pyrS, sphS, linxS, linyS, linzS;
+	private TextureImage dolT, ghostT, candT, cubePattern;
+
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
 	
@@ -48,11 +57,27 @@ public class MyGame extends VariableFrameRateGame
 	private long fileLastModifiedTime = 0;
 	ScriptEngine jsEngine;
 
+	//server variables
+	private String serverAddress;
+	private int serverPort;
+	private ProtocolType serverProtocol;
+	private ProtocolClient protClient;
+	private boolean isClientConnected = false;
 
-	public MyGame() { super(); }
+
+	public MyGame(String serverAddress, int serverPort, String protocol) { 
+		super(); 
+		gm = new GhostManager(this);
+		this.serverAddress = serverAddress;
+		this.serverPort = serverPort;
+		if (protocol.toUpperCase().compareTo("TCP") == 0)
+			this.serverProtocol = ProtocolType.TCP;
+		else 
+			this.serverProtocol = ProtocolType.UDP;
+	}
 
 	public static void main(String[] args)
-	{	MyGame game = new MyGame();
+	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
@@ -61,6 +86,8 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadShapes()
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
+		ghostS = new Sphere();
+		candS = new ImportedModel("Candle.obj");
 		cubS = new Cube();
 		torS = new Torus(.5f, .2f, 48);
 		pyrS = new ManualPyramid();
@@ -76,7 +103,9 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadTextures()
 	{	
-		doltx = new TextureImage("Dolphin_HighPolyUV.png");
+		dolT = new TextureImage("Dolphin_HighPolyUV.png");
+		ghostT = new TextureImage("redDolphin.jpg");
+		candT = new TextureImage("Candle.png");
 		cubePattern = new TextureImage("Cube_Decoration.png");
 
 		//Need to make hill/grass textures
@@ -99,7 +128,7 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialScale, initialRotation;
 
 		// build dolphin in the center of the window
-		avatar = new GameObject(GameObject.root(), dolS, doltx);
+		avatar = new GameObject(GameObject.root(), dolS, dolT);
 		initialTranslation = (new Matrix4f()).translation(0,1,-5);
 		initialScale = (new Matrix4f()).scaling(3.0f);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(135f));
@@ -107,6 +136,12 @@ public class MyGame extends VariableFrameRateGame
 		avatar.setLocalScale(initialScale);
 		avatar.setLocalRotation(initialRotation);
 
+		candle = new GameObject(GameObject.root(), candS, candT);
+		initialTranslation = (new Matrix4f()).translation(0,.4f,0);
+		initialScale = (new Matrix4f()).scaling(.5f);
+		candle.setLocalTranslation(initialTranslation);
+		candle.setLocalScale(initialScale);
+		
 		cub = new GameObject(GameObject.root(), cubS, cubePattern);
 		initialTranslation = (new Matrix4f()).translation(20,1,-10);
 		initialScale = (new Matrix4f()).scaling(.6f);
@@ -257,9 +292,9 @@ public class MyGame extends VariableFrameRateGame
 		scriptFile1 = new File("assets/scripts/InitParams.js");
 		this.runScript(scriptFile1);
 
-		lastFrameTime = System.currentTimeMillis();
-		currFrameTime = System.currentTimeMillis();
-		elapsTime = 0.0;
+		lastFrameTime = currFrameTime = System.currentTimeMillis();
+		elapsTime = 0;
+
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
 		rc = new RotationController(engine, new Vector3f(0,1,0),((Double)(jsEngine.get("RotationControllerSpeed"))).floatValue());
@@ -309,6 +344,8 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
 		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
 		setPressedActionToKeyboard(Key.SPACE, toggle);
+
+		setupNetworking();
 	}
 	
 	@Override
@@ -348,12 +385,11 @@ public class MyGame extends VariableFrameRateGame
 				activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
 				spinSpeed += 20;
 				spinDistance += .5f;
-
-
-
 			}
 
 		orbitController.updateCameraPosition();
+
+		processNetworking((float)elapsTime);
 		
 	}
 
@@ -413,8 +449,49 @@ public class MyGame extends VariableFrameRateGame
 			button, action, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 	}
 
+	public Engine getEngine() { return engine; }
 	public GameObject getAvatar() { return avatar; }
-
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
 	
+	// ------------Networking-----------------------
+
+	public ObjShape getGhostShape() { return ghostS; }
+	public TextureImage getGhostTexture() { return ghostT; }
+	public GhostManager getGhostManager() { return gm; }
+	public ProtocolClient getProtClient() { return protClient; } 
+
+	private void setupNetworking(){
+		isClientConnected = false;
+		try{
+			protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+		} catch (UnknownHostException e){
+			e.printStackTrace();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+		if (protClient == null){
+			System.out.println("missing protocol host");
+		} else {
+			System.out.println("sending join message to protocol host");
+			protClient.sendJoinMessage();
+		}
+	}
+
+	protected void processNetworking(float elapsTime){
+		if (protClient != null){
+			protClient.processPackets();
+		}
+	}
+
+	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
+	public void setIsConnected(boolean value) { this.isClientConnected = value; }
+
+	private class SendCloseConnectionPacketAction extends AbstractInputAction{
+		@Override
+		public void performAction(float time, net.java.games.input.Event evt){
+			if (protClient != null && isClientConnected == true){
+				protClient.sendByeMessage();
+			}
+		}
+	}
 }

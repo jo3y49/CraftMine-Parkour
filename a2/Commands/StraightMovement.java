@@ -5,6 +5,7 @@ import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
 
 import a2.MyGame;
+import a2.Client.ProtocolClient;
 
 public class StraightMovement extends AbstractInputAction
 {
@@ -27,5 +28,6 @@ public class StraightMovement extends AbstractInputAction
             moveSpeed = game.getFrameTime()*-moveSpeedWeight;
 
         av.straightMovement(moveSpeed); 
+        game.getProtClient().sendMoveMessage(av.getWorldLocation());
     }
 }
