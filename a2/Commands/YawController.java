@@ -7,8 +7,9 @@ import net.java.games.input.Event;
 public class YawController extends AbstractInputAction
 {
     private MyGame game;
+    private float rotationSpeedWeight;
 
-    public YawController (MyGame g) { game = g; }
+    public YawController (MyGame g, float rsw) { game = g; rotationSpeedWeight = rsw; }
 
     @Override
     public void performAction(float time, Event e)
@@ -16,7 +17,7 @@ public class YawController extends AbstractInputAction
         float keyValue = e.getValue();
         if (keyValue > -.4 && keyValue < .4) return; // deadzone
 
-        Yaw y = new Yaw(game, keyValue <= -.4 ? true : false);
+        Yaw y = new Yaw(game, keyValue <= -.4 ? true : false, rotationSpeedWeight);
         y.performAction(time, e);
     }
 }

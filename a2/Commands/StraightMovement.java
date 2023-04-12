@@ -12,8 +12,9 @@ public class StraightMovement extends AbstractInputAction
     private boolean forward;
     private float moveSpeed;
     private GameObject av;
+    private float moveSpeedWeight;
 
-    public StraightMovement(MyGame g, boolean f) { game = g; forward = f; }
+    public StraightMovement(MyGame g, boolean f, float msw) { game = g; forward = f; moveSpeedWeight = msw;}
 
     @Override
     public void performAction(float time, Event e)
@@ -21,9 +22,9 @@ public class StraightMovement extends AbstractInputAction
         av = game.getAvatar();
 
         if (forward)
-            moveSpeed = game.getFrameTime()*.006f;
+            moveSpeed = game.getFrameTime()* moveSpeedWeight;
         else    
-            moveSpeed = game.getFrameTime()*-.006f;
+            moveSpeed = game.getFrameTime()*-moveSpeedWeight;
 
         av.straightMovement(moveSpeed); 
     }

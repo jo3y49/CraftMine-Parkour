@@ -9,13 +9,14 @@ public class Yaw extends AbstractInputAction
     private MyGame game;
     private boolean left;
     private float rotationSpeed;
+    private float rotationSpeedWeight;
 
-    public Yaw (MyGame g, boolean l) { game = g; left = l; }
+    public Yaw (MyGame g, boolean l, float rsw) { game = g; left = l; rotationSpeedWeight = rsw;}
 
     @Override
     public void performAction(float time, Event e)
     {
-        rotationSpeed = game.getFrameTime() * .002f;
+        rotationSpeed = game.getFrameTime() * rotationSpeedWeight;
         
         game.getAvatar().yaw(left ? rotationSpeed : -rotationSpeed);
     }

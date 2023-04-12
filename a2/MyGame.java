@@ -12,6 +12,15 @@ import org.joml.*;
 import com.jogamp.opengl.util.gl2.GLUT;
 import a2.Commands.*;
 import a2.Shapes.*;
+//scripting imports
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.io.*;
+import java.util.*;
+
 
 public class MyGame extends VariableFrameRateGame
 {
@@ -33,6 +42,11 @@ public class MyGame extends VariableFrameRateGame
 	private ObjShape terrS;
 	private TextureImage hills, grass;
 	private int fluffyClouds, lakeIslands; // skyboxes
+
+	//scripting variables
+	private File scriptFile1;
+	private long fileLastModifiedTime = 0;
+	ScriptEngine jsEngine;
 
 
 	public MyGame() { super(); }
@@ -213,15 +227,42 @@ public class MyGame extends VariableFrameRateGame
 		rightCamera.setV(new Vector3f(0,0,-1));
 		rightCamera.setN(new Vector3f(0,-1,0));
 	}
+
+	//run script method
+	private void runScript(File scriptFile)
+	{ try
+	{ FileReader fileReader = new FileReader(scriptFile);
+	jsEngine.eval(fileReader);
+	fileReader.close();
+	}
+	catch (FileNotFoundException e1)
+	{ System.out.println(scriptFile + " not found " + e1); }
+	catch (IOException e2)
+	{ System.out.println("IO problem with " + scriptFile + e2); }
+	catch (ScriptException e3)
+	{ System.out.println("ScriptException in " + scriptFile + e3); }
+	catch (NullPointerException e4)
+	{ System.out.println ("Null ptr exception reading " + scriptFile + e4);
+	} }
+
 	
 	@Override
 	public void initializeGame()
-	{	lastFrameTime = System.currentTimeMillis();
+	{
+		// initialize the scripting engine
+		ScriptEngineManager factory = new ScriptEngineManager();
+		jsEngine = factory.getEngineByName("js");
+
+		//initilizing parameters using this script
+		scriptFile1 = new File("assets/scripts/InitParams.js");
+		this.runScript(scriptFile1);
+
+		lastFrameTime = System.currentTimeMillis();
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = 0.0;
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
-		rc = new RotationController(engine, new Vector3f(0,1,0), .001f);
+		rc = new RotationController(engine, new Vector3f(0,1,0),((Double)(jsEngine.get("RotationControllerSpeed"))).floatValue());
 		fc = new FlyController(engine, .0005f);
 
 		(engine.getSceneGraph()).addNodeController(rc);
@@ -237,13 +278,13 @@ public class MyGame extends VariableFrameRateGame
 
 		orbitController = new CameraOrbit3D(cM, avatar, terr, engine);
 
-		StraightMovementController moveController = new StraightMovementController(this);
-		StraightMovement moveForward = new StraightMovement(this, true);
-		StraightMovement moveBackward = new StraightMovement(this, false);
+		StraightMovementController moveController = new StraightMovementController(this, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
+		StraightMovement moveForward = new StraightMovement(this, true, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
+		StraightMovement moveBackward = new StraightMovement(this, false,  ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
 
-		YawController YawController = new YawController(this);
-		Yaw yawLeft = new Yaw(this, true);
-		Yaw yawRight = new Yaw(this, false);
+		YawController YawController = new YawController(this, ((Double) jsEngine.get("YawMoveSpeedWeight")).floatValue());
+		Yaw yawLeft = new Yaw(this, true, ((Double) jsEngine.get("YawMoveSpeedWeight")).floatValue());
+		Yaw yawRight = new Yaw(this, false, ((Double) jsEngine.get("YawMoveSpeedWeight")).floatValue());
 
 		CameraMovement moveCamIn = new CameraMovement(cS, this, "in");
 		CameraMovement moveCamOut = new CameraMovement(cS, this, "out");
@@ -298,11 +339,18 @@ public class MyGame extends VariableFrameRateGame
 
 		double spinSpeed = 30;
 		float spinDistance = 1;
+
+		//double spinSpeed = (Double) (jsEngine.get("spinSpeed"));
+		//float spinDistance = ((Double) jsEngine.get("spinDistance")).floatValue();
+
 		for (int i = 0; i < collectedPrizes.size(); i++)
 			{
 				activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
 				spinSpeed += 20;
 				spinDistance += .5f;
+
+
+
 			}
 
 		orbitController.updateCameraPosition();
