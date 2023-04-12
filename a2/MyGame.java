@@ -15,13 +15,10 @@ import a2.Commands.*;
 import a2.Shapes.*;
 import a2.Client.*;
 //scripting imports
-import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.*;
-import java.util.*;
 //networking imports
 import java.io.IOException;
 import java.net.InetAddress;
@@ -47,7 +44,7 @@ public class MyGame extends VariableFrameRateGame
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
 	
 	// terrain/skybox variables
-	private GameObject dolphin, terr;
+	private GameObject terr;
 	private ObjShape terrS;
 	private TextureImage hills, grass;
 	private int fluffyClouds, lakeIslands; // skyboxes
@@ -298,7 +295,7 @@ public class MyGame extends VariableFrameRateGame
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
 		rc = new RotationController(engine, new Vector3f(0,1,0),((Double)(jsEngine.get("RotationControllerSpeed"))).floatValue());
-		fc = new FlyController(engine, .0005f);
+		fc = new FlyController(engine, ((Double)(jsEngine.get("FlyControllerSpeed"))).floatValue());
 
 		(engine.getSceneGraph()).addNodeController(rc);
 		(engine.getSceneGraph()).addNodeController(fc);
@@ -358,7 +355,7 @@ public class MyGame extends VariableFrameRateGame
 		// avatar follows terrain map
 		Vector3f loc = avatar.getWorldLocation();
 		float height = terr.getHeight(loc.x(), loc.z());
-		avatar.setLocalLocation(loc.x(), height, loc.z());
+		avatar.setLocalLocation(loc.x(), height + 1, loc.z());
 
 		// build and set HUD
 		String collectedStr = Integer.toString(collectedPrizes.size());
