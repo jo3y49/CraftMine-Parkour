@@ -323,6 +323,8 @@ public class GameObject
 	/** sets the location of this object relative to its parent node */
 	public void setLocalLocation(Vector3f location) { localTranslation.setTranslation(location); update(); }
 
+	public void setLocalLocation(float x, float y, float z) { localTranslation.setTranslation(new Vector3f(x, y, z)); update(); }
+
 	// ------------------- accessors for hierarchical systems and hierarchical objects
 
 	/** applies the parent translation when building this GameObject's world translation matrix */

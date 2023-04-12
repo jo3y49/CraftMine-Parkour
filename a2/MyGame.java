@@ -355,6 +355,11 @@ public class MyGame extends VariableFrameRateGame
 		currFrameTime = System.currentTimeMillis();
 		elapsTime += (currFrameTime - lastFrameTime) / 1000.0;
 
+		// avatar follows terrain map
+		Vector3f loc = avatar.getWorldLocation();
+		float height = terr.getHeight(loc.x(), loc.z());
+		avatar.setLocalLocation(loc.x(), height, loc.z());
+
 		// build and set HUD
 		String collectedStr = Integer.toString(collectedPrizes.size());
 		String dispStr1 = "Collected Prizes = " + collectedStr;
