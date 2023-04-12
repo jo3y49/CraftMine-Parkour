@@ -97,10 +97,10 @@ public class MyGame extends VariableFrameRateGame
 		ground.setLocalScale(initialScale);
 
 		candle = new GameObject(GameObject.root(), candS, candT);
-		initialTranslation = (new Matrix4f()).translation(0,0,0);
-		initialScale = (new Matrix4f()).scaling(30.0f);
-		avatar.setLocalTranslation(initialTranslation);
-		avatar.setLocalScale(initialScale);
+		initialTranslation = (new Matrix4f()).translation(0,.4f,0);
+		initialScale = (new Matrix4f()).scaling(.5f);
+		candle.setLocalTranslation(initialTranslation);
+		candle.setLocalScale(initialScale);
 
 		// add X, Y, -Z axes
 		x = new GameObject(GameObject.root(), linxS);
