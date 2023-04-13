@@ -3,8 +3,6 @@ package a2.Commands;
 import tage.Camera;
 import tage.input.action.AbstractInputAction;
 
-import java.util.Vector;
-
 import a2.MyGame;
 import net.java.games.input.Event;
 
