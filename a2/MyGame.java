@@ -106,7 +106,7 @@ public class MyGame extends VariableFrameRateGame
 		cubePattern = new TextureImage("Cube_Decoration.png");
 
 		//Need to make hill/grass textures
-		hills = new TextureImage("hills.jpg");
+		hills = new TextureImage("Hills.png");
 		grass = new TextureImage("Grass.jpg");
 	}	 
 
