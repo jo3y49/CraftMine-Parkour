@@ -83,7 +83,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadShapes()
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
-		ghostS = new Sphere();
+		ghostS = new ImportedModel("Candle.obj");
 		candS = new ImportedModel("Candle.obj");
 		cubS = new Cube();
 		torS = new Torus(.5f, .2f, 48);
@@ -101,7 +101,7 @@ public class MyGame extends VariableFrameRateGame
 	public void loadTextures()
 	{	
 		dolT = new TextureImage("Dolphin_HighPolyUV.png");
-		ghostT = new TextureImage("redDolphin.jpg");
+		ghostT = new TextureImage("Candle.png");
 		candT = new TextureImage("Candle.png");
 		cubePattern = new TextureImage("Cube_Decoration.png");
 
@@ -134,14 +134,14 @@ public class MyGame extends VariableFrameRateGame
 		avatar.setLocalRotation(initialRotation);
 
 		candle = new GameObject(GameObject.root(), candS, candT);
-		initialTranslation = (new Matrix4f()).translation(0,.4f,0);
-		initialScale = (new Matrix4f()).scaling(.5f);
+		initialTranslation = (new Matrix4f()).translation(5,.4f,0);
+		initialScale = (new Matrix4f()).scaling(1f);
 		candle.setLocalTranslation(initialTranslation);
 		candle.setLocalScale(initialScale);
 		
 		cub = new GameObject(GameObject.root(), cubS, cubePattern);
 		initialTranslation = (new Matrix4f()).translation(20,1,-10);
-		initialScale = (new Matrix4f()).scaling(.6f);
+		initialScale = (new Matrix4f()).scaling(1f);
 		cub.setLocalTranslation(initialTranslation);
 		cub.setLocalScale(initialScale);
 		prizes.add(cub);
