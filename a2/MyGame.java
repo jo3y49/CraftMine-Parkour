@@ -248,9 +248,9 @@ public class MyGame extends VariableFrameRateGame
 		return;
 		}
 		resource1 = audioMgr.createAudioResource(
-		"assets/sounds/here.wav", AudioResourceType.AUDIO_SAMPLE);
+		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
 		resource2 = audioMgr.createAudioResource(
-		"assets/sounds/ocean.wav", AudioResourceType.AUDIO_SAMPLE);
+		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
 		hereSound = new Sound(resource1,
 		SoundType.SOUND_EFFECT, 100, true);
 		oceanSound = new Sound(resource2,
