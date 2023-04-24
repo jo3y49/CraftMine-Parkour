@@ -254,19 +254,19 @@ public class MyGame extends VariableFrameRateGame
 		hereSound = new Sound(resource1,
 		SoundType.SOUND_EFFECT, 100, true);
 		oceanSound = new Sound(resource2,
-		SoundType.SOUND_EFFECT, 100, true);
+		SoundType.SOUND_EFFECT, 500, true);
 		hereSound.initialize(audioMgr);
 		oceanSound.initialize(audioMgr);
 		hereSound.setMaxDistance(10.0f);
 		hereSound.setMinDistance(0.5f);
 		hereSound.setRollOff(5.0f);
-		oceanSound.setMaxDistance(10.0f);
+		oceanSound.setMaxDistance(50.0f);
 		oceanSound.setMinDistance(0.5f);
 		oceanSound.setRollOff(5.0f);
 		hereSound.setLocation(avatar.getWorldLocation());
 		oceanSound.setLocation(pyr.getWorldLocation());
 		setEarParameters();
-		hereSound.play();
+		// hereSound.play();
 		oceanSound.play();
 	}
 
@@ -435,7 +435,7 @@ public class MyGame extends VariableFrameRateGame
 
 		orbitController.updateCameraPosition();
 
-		hereSound.setLocation(avatar.getWorldLocation());
+		// hereSound.setLocation(avatar.getWorldLocation());
 		oceanSound.setLocation(pyr.getWorldLocation());
 		setEarParameters();
 
