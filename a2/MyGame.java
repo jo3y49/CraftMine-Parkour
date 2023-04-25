@@ -1,6 +1,7 @@
 package a2;
 
 import tage.*;
+import tage.audio.*;
 import tage.shapes.*;
 import tage.input.*;
 import tage.input.action.*;
@@ -60,6 +61,10 @@ public class MyGame extends VariableFrameRateGame
 	private ProtocolType serverProtocol;
 	private ProtocolClient protClient;
 	private boolean isClientConnected = false;
+
+	//audio variables
+	private IAudioManager audioMgr;
+	private Sound oceanSound, hereSound;
 
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
@@ -234,6 +239,44 @@ public class MyGame extends VariableFrameRateGame
 		(engine.getSceneGraph()).addLight(light1);
 	}
 
+	public void initAudio() {
+		AudioResource resource1, resource2;
+		audioMgr = AudioManagerFactory.createAudioManager(
+		"tage.audio.joal.JOALAudioManager");
+		if (!audioMgr.initialize())
+		{ System.out.println("Audio Manager failed to initialize!");
+		return;
+		}
+		resource1 = audioMgr.createAudioResource(
+		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
+		resource2 = audioMgr.createAudioResource(
+		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
+		hereSound = new Sound(resource1,
+		SoundType.SOUND_EFFECT, 100, true);
+		oceanSound = new Sound(resource2,
+		SoundType.SOUND_EFFECT, 500, true);
+		hereSound.initialize(audioMgr);
+		oceanSound.initialize(audioMgr);
+		hereSound.setMaxDistance(10.0f);
+		hereSound.setMinDistance(0.5f);
+		hereSound.setRollOff(5.0f);
+		oceanSound.setMaxDistance(50.0f);
+		oceanSound.setMinDistance(0.5f);
+		oceanSound.setRollOff(5.0f);
+		hereSound.setLocation(avatar.getWorldLocation());
+		oceanSound.setLocation(pyr.getWorldLocation());
+		setEarParameters();
+		// hereSound.play();
+		oceanSound.play();
+	}
+
+	public void setEarParameters() {
+		Camera camera = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
+		audioMgr.getEar().setLocation(avatar.getWorldLocation());
+		audioMgr.getEar().setOrientation(camera.getN(),
+			new Vector3f(0.0f, 1.0f, 0.0f));
+	}
+
 	@Override
 	public void createViewports()
 	{
@@ -342,6 +385,7 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
 		setPressedActionToKeyboard(Key.SPACE, toggle);
 
+		initAudio();
 		setupNetworking();
 	}
 	
@@ -390,6 +434,10 @@ public class MyGame extends VariableFrameRateGame
 			}
 
 		orbitController.updateCameraPosition();
+
+		// hereSound.setLocation(avatar.getWorldLocation());
+		oceanSound.setLocation(pyr.getWorldLocation());
+		setEarParameters();
 
 		processNetworking((float)elapsTime);
 		
