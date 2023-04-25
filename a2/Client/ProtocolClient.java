@@ -6,6 +6,9 @@ import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
+
+import javax.swing.text.Position;
+
 import org.joml.*;
 
 import a2.MyGame;
@@ -16,6 +19,7 @@ public class ProtocolClient extends GameConnectionClient
 {
 	private MyGame game;
 	private GhostManager ghostManager;
+	private GhostNPC ghostNPC;
 	private UUID id;
 	
 	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
@@ -106,7 +110,33 @@ public class ProtocolClient extends GameConnectionClient
 					Float.parseFloat(messageTokens[4]));
 				
 				ghostManager.updateGhostAvatar(ghostID, ghostPosition);
-	}	}	}
+			}	
+
+			if (messageTokens[0].compareTo("createNPC") == 0)
+			{ // create a new ghost NPC
+			// Parse out the position
+			Vector3f ghostPosition = new Vector3f(
+			Float.parseFloat(messageTokens[1]),
+			Float.parseFloat(messageTokens[2]),
+			Float.parseFloat(messageTokens[3]));
+			try
+			{ createGhostNPC(ghostPosition);
+			} catch (IOException e) { e.printStackTrace(); } // error creating ghost avatar
+			}
+
+			if (messageTokens[0].compareTo("mnpc") == 0)
+			{ // create a new ghost NPC
+			// Parse out the position
+			Vector3f ghostPosition = new Vector3f(
+			Float.parseFloat(messageTokens[1]),
+			Float.parseFloat(messageTokens[2]),
+			Float.parseFloat(messageTokens[3]));
+			try
+			{ createGhostNPC(ghostPosition);
+			} catch (IOException e) { e.printStackTrace(); } // error creating ghost avatar
+			}
+		}
+	}	
 	
 	// The initial message from the game client requesting to join the 
 	// server. localId is a unique identifier for the client. Recommend 
@@ -179,4 +209,25 @@ public class ProtocolClient extends GameConnectionClient
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
+
+	// ------------- GHOST NPC SECTION --------------
+
+	private void createGhostNPC(Vector3f position) throws IOException{
+		if (ghostNPC == null)
+			ghostNPC = new GhostNPC(0, game.getNPCShape(), game.getNPCTexture(), position);
+	}
+
+	private void updateGhostNPC(Vector3f position, double gsize){
+		boolean gs;
+		if (ghostNPC == null){
+			try{
+				createGhostNPC(position);
+			} catch (IOException e){
+				System.out.println("error creating npc");
+			}
+			ghostNPC.setPosition(position);
+			if (gsize == 1) gs=false; else gs=true;
+			ghostNPC.setSize(gs);
+		}
+	}
 }

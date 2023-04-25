@@ -37,9 +37,9 @@ public class MyGame extends VariableFrameRateGame
 	private CameraOrbit3D orbitController;
 	private Light light1;
 
-	private GameObject avatar, candle, cub, cubM, tor, torM, sph, sphM, pyr,  x, y, z;
-	private ObjShape dolS, ghostS, candS, cubS, torS, pyrS, sphS, linxS, linyS, linzS;
-	private TextureImage dolT, ghostT, candT, cubePattern;
+	private GameObject avatar, candle, shadow, cubM, tor, torM, sph, sphM, pyr,  x, y, z;
+	private ObjShape dolS, ghostS, candS, shadowS, torS, pyrS, sphS, linxS, linyS, linzS;
+	private TextureImage dolT, ghostT, candT, shadowT;
 
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
@@ -90,7 +90,7 @@ public class MyGame extends VariableFrameRateGame
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
 		ghostS = new ImportedModel("Candle.obj");
 		candS = new ImportedModel("Candle.obj");
-		cubS = new Cube();
+		shadowS = new Cube();
 		torS = new Torus(.5f, .2f, 48);
 		pyrS = new ManualPyramid();
 		sphS = new Sphere();
@@ -108,7 +108,7 @@ public class MyGame extends VariableFrameRateGame
 		dolT = new TextureImage("Dolphin_HighPolyUV.png");
 		ghostT = new TextureImage("Candle.png");
 		candT = new TextureImage("Candle.png");
-		cubePattern = new TextureImage("Cube_Decoration.png");
+		shadowT = new TextureImage("Cube_Decoration.png");
 
 		//Need to make hill/grass textures
 		hills = new TextureImage("Hills.png");
@@ -144,12 +144,12 @@ public class MyGame extends VariableFrameRateGame
 		candle.setLocalTranslation(initialTranslation);
 		candle.setLocalScale(initialScale);
 		
-		cub = new GameObject(GameObject.root(), cubS, cubePattern);
+		shadow = new GameObject(GameObject.root(), shadowS, shadowT);
 		initialTranslation = (new Matrix4f()).translation(20,1,-10);
 		initialScale = (new Matrix4f()).scaling(1f);
-		cub.setLocalTranslation(initialTranslation);
-		cub.setLocalScale(initialScale);
-		prizes.add(cub);
+		shadow.setLocalTranslation(initialTranslation);
+		shadow.setLocalScale(initialScale);
+		prizes.add(shadow);
 
 		sph = new GameObject(GameObject.root(), sphS);
 		initialTranslation = (new Matrix4f()).translation(-25,1,-5);
@@ -171,7 +171,7 @@ public class MyGame extends VariableFrameRateGame
 		pyr.setLocalScale(initialScale);
 		pyr.getRenderStates().hasLighting(true);
 
-		cubM = new GameObject(GameObject.root(), cubS, cubePattern);
+		cubM = new GameObject(GameObject.root(), shadowS, shadowT);
 		initialTranslation = (new Matrix4f()).translation(.3f,2,.6f);
 		cubM.setLocalTranslation(initialTranslation);
 		initialScale = (new Matrix4f()).scaling(.06f);
@@ -453,7 +453,7 @@ public class MyGame extends VariableFrameRateGame
 				fc.addTarget(prizes.get(i));
 				GameObject mini = new GameObject(GameObject.root());
 
-				if (prizes.get(i) == cub)
+				if (prizes.get(i) == shadow)
 					mini = cubM;
 				else if (prizes.get(i) == tor)
 					mini = torM;
@@ -502,7 +502,9 @@ public class MyGame extends VariableFrameRateGame
 	public Engine getEngine() { return engine; }
 	public GameObject getAvatar() { return avatar; }
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
-	
+	public ObjShape getNPCShape() { return shadowS; }
+	public TextureImage getNPCTexture() { return shadowT; }
+
 	// ------------Networking-----------------------
 
 	public ObjShape getGhostShape() { return ghostS; }
