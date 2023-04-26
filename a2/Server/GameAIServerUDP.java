@@ -11,10 +11,10 @@ import tage.ai.behaviortrees.BTSequence;
 import tage.ai.behaviortrees.BehaviorTree;
 import tage.networking.server.GameConnectionServer;
 
-public class GameAIServerUDP extends GameConnectionServer<UUID>{
+public class GameAIServerUDP  extends GameConnectionServer<UUID> {
     NPCcontroller npcCtrl;
 
-    public GameAIServerUDP(int localPort, NPCcontroller npc){
+    public GameAIServerUDP (int localPort, NPCcontroller npc) throws IOException{
         super(localPort, ProtocolType.UDP);
         npcCtrl = npc;
     }
@@ -31,17 +31,13 @@ public class GameAIServerUDP extends GameConnectionServer<UUID>{
             System.out.println("couldn't send msg");
             e.printStackTrace();
         }
-    }
-
-    public void sendNPCinfo(){
-
-    }
-    public void sendNPCstart(UUID clientID){
-
     }    
 
     @Override
     public void processPacket(Object o, InetAddress senderIP, int port){
+        String strMessage = (String)o;
+		String[] messageTokens = strMessage.split(",");
+        
         // Case where server receives request for NPCs
         // Received Message Format: (needNPC,id)
         if(messageTokens[0].compareTo("needNPC") == 0) {
@@ -73,6 +69,13 @@ public class GameAIServerUDP extends GameConnectionServer<UUID>{
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void sendNPCinfo(){
+
+    }
+    public void sendNPCstart(UUID clientID){
+
     }
 
     public class NPCcontroller{
@@ -131,5 +134,10 @@ public class GameAIServerUDP extends GameConnectionServer<UUID>{
             bt.insert(20, new AvatarNear(server, this, npc, false));
             bt.insert(20, new GetBig(npc));
         }
+
+        public NPC getNPC() {return npc;}
+        public double getCriteria() {return criteria;}
+        public boolean getNearFlag() {return nearFlag;}
+        public void setNearFlag(boolean f) { nearFlag = f; }
     }
 }
