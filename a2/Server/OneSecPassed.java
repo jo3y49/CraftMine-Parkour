@@ -1,6 +1,6 @@
 package a2.Server;
 
-import a2.Server.GameAIServerUDP.NPCcontroller;
+import a2.Server.NPCcontroller;
 import tage.ai.behaviortrees.BTCondition;
 
 public class OneSecPassed extends BTCondition{
@@ -9,10 +9,10 @@ public class OneSecPassed extends BTCondition{
     
     public OneSecPassed(NPCcontroller c, NPC n, boolean toNegate){
         super(toNegate);
-        npcc = c, npc = n;
+        npcc = c; npc = n;
     }
 
     protected boolean check(){
-        
+        return true;
     }
 }

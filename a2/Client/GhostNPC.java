@@ -19,7 +19,7 @@ public class GhostNPC extends GameObject{
             this.setLocalScale((new Matrix4f()).scaling(1));
     }
 
-    public void setPosition(Vector3f p){
-        this.setLocalLocation(p);
-    }
+    public int getID() { return id; }
+	public Vector3f getPosition() { return getWorldLocation(); }
+    public void setPosition(Vector3f p) { setLocalLocation(p); }
 }

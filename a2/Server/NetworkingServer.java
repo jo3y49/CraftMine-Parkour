@@ -1,7 +1,7 @@
 package a2.Server;
 import java.io.IOException;
 
-import a2.Server.GameAIServerUDP.NPCcontroller;
+import a2.Server.NPCcontroller;
 import tage.networking.IGameConnection.ProtocolType;
 
 public class NetworkingServer 

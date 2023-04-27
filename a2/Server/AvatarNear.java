@@ -1,6 +1,5 @@
 package a2.Server;
 
-import a2.Server.GameAIServerUDP.NPCcontroller;
 import tage.ai.behaviortrees.BTCondition;
 
 public class AvatarNear extends BTCondition{

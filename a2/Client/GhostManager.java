@@ -15,6 +15,7 @@ public class GhostManager
 {
 	private MyGame game;
 	private Vector<GhostAvatar> ghostAvatars = new Vector<GhostAvatar>();
+	private Vector<GhostNPC> ghostNPCs = new Vector<GhostNPC>();
 
 	public GhostManager(VariableFrameRateGame vfrg)
 	{	game = (MyGame)vfrg;
@@ -62,4 +63,7 @@ public class GhostManager
 		{	System.out.println("tried to update ghost avatar position, but unable to find ghost in list");
 		}
 	}
+	public boolean checkNear(Vector3f p, double criteria) {
+        return game.getPlayerPosition().distance(p) < criteria;
+    }
 }
