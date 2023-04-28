@@ -1,5 +1,10 @@
 package a2;
 
+import a2.Commands.*;
+import a2.Shapes.*;
+import a2.Client.*;
+
+//tage imports
 import tage.*;
 import tage.audio.*;
 import tage.shapes.*;
@@ -7,21 +12,22 @@ import tage.input.*;
 import tage.input.action.*;
 import tage.nodeControllers.*;
 import tage.networking.IGameConnection.ProtocolType;
+
 import net.java.games.input.Component.Identifier.*;
 import java.lang.Math;
 import java.util.ArrayList;
 import org.joml.*;
+
+import java.awt.event.KeyEvent;
 import com.jogamp.opengl.util.gl2.GLUT;
-import a2.Commands.*;
-import a2.Shapes.*;
-import a2.Client.*;
+
 //scripting imports
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.*;
+
 //networking imports
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -370,6 +376,8 @@ public class MyGame extends VariableFrameRateGame
 
 		ArrowToggle toggle = new ArrowToggle(x, y, z);
 
+		Quit quit = new Quit(this);
+
 		setHeldButtonToGamepad(Axis.Y, moveController);
 		setHeldButtonToGamepad(Axis.X, YawController);
 
@@ -384,6 +392,7 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
 		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
 		setPressedActionToKeyboard(Key.SPACE, toggle);
+		setPressedActionToKeyboard(Key.ESCAPE, quit);
 
 		initAudio();
 		setupNetworking();
@@ -511,6 +520,7 @@ public class MyGame extends VariableFrameRateGame
 	public TextureImage getGhostTexture() { return ghostT; }
 	public GhostManager getGhostManager() { return gm; }
 	public ProtocolClient getProtClient() { return protClient; } 
+	public boolean getIsClientConnected() { return isClientConnected; }
 
 	private void setupNetworking(){
 		isClientConnected = false;
@@ -538,12 +548,8 @@ public class MyGame extends VariableFrameRateGame
 	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 
-	private class SendCloseConnectionPacketAction extends AbstractInputAction{
-		@Override
-		public void performAction(float time, net.java.games.input.Event evt){
-			if (protClient != null && isClientConnected == true){
-				protClient.sendByeMessage();
-			}
-		}
+	public void killGame(){
+		shutdown();
+		System.exit(0);
 	}
 }

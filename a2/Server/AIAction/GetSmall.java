@@ -1,19 +1,20 @@
-package a2.Server;
+package a2.Server.AIAction;
 
+import a2.Server.NPC;
 import tage.ai.behaviortrees.BTAction;
 import tage.ai.behaviortrees.BTStatus;
 
-public class GetBig extends BTAction{
+public class GetSmall extends BTAction{
     NPC npc;
 
-    public GetBig(NPC n){
+    public GetSmall(NPC n){
         super();
         npc = n;
     }
 
     @Override
     protected BTStatus update(float elapsedTime) {
-        npc.getBig();
+        npc.getSmall();
         return BTStatus.BH_SUCCESS;
     }
 }

@@ -1,5 +1,6 @@
-package a2.Server;
+package a2.Server.AIAction;
 
+import a2.Server.NPC;
 import a2.Server.NPCcontroller;
 import tage.ai.behaviortrees.BTCondition;
 

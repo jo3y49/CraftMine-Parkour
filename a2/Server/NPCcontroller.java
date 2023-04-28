@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.joml.Random;
 
+import a2.Server.AIAction.*;
 import tage.ai.behaviortrees.*;
 import tage.networking.server.GameConnectionServer;
 
@@ -15,14 +16,14 @@ public class NPCcontroller{
     BehaviorTree bt = new BehaviorTree(BTCompositeType.SELECTOR);
     boolean nearFlag = false;
     long thinkStartTime, tickStartTime, lastThinkUpdateTime, lastTickUpdateTime;
-    GameAIServerUDP server;
+    GameServer server;
     double criteria = 2;
 
     public void updateNPCs(){
         npc.updateLocation();
     }
 
-    public void start(GameAIServerUDP s){
+    public void start(GameServer s){
         thinkStartTime = System.nanoTime();
         tickStartTime = System.nanoTime();
         lastThinkUpdateTime = thinkStartTime;
