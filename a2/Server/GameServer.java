@@ -80,8 +80,8 @@ public class GameServer  extends GameConnectionServer<UUID> {
         // Received Message Format: (needNPC,id)
         if(messageTokens[0].compareTo("needNPC") == 0) {
             System.out.println("server got a needNPC message");
-            UUID clientID = UUID.fromString(messageTokens[1]);
-            sendNPCstart(clientID);
+            String[] location = {"0", "0", "0"};
+            sendCreateNPCmsg(location);
         }
         // Case where server receives notice that an av is close to the npc
         // Received Message Format: (isnear)
@@ -213,14 +213,14 @@ public class GameServer  extends GameConnectionServer<UUID> {
         npcCtrl.setNearFlag(true);
     }
 
-    public void sendCreateNPCmsg(UUID clientID, String[] position){
+    public void sendCreateNPCmsg(String[] position){
         try {
             System.out.println("server telling clients about an NPC");
-            String message = new String("create NPC," + clientID.toString());
+            String message = new String("createNPC," + 0);
             message += "," + position[0];
             message += "," + position[1];
             message += "," + position[2];
-            forwardPacketToAll(message, clientID);
+            sendPacketToAll(message);
         } catch (IOException e){
             e.printStackTrace();
         }

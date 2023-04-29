@@ -30,6 +30,14 @@ public class GhostManager
 		newAvatar.setLocalScale(initialScale);
 		ghostAvatars.add(newAvatar);
 	}
+
+	public void createGhostNPC(int id, Vector3f position) throws IOException{
+		System.out.println("adding npc with ID --> " + id);
+		ObjShape s = game.getNPCShape();
+		TextureImage t = game.getNPCTexture();
+		GhostNPC newNPC = new GhostNPC(id, s, t, position);
+		ghostNPCs.add(newNPC);
+	}
 	
 	public void removeGhostAvatar(UUID id)
 	{	GhostAvatar ghostAvatar = findAvatar(id);

@@ -17,8 +17,6 @@ import net.java.games.input.Component.Identifier.*;
 import java.lang.Math;
 import java.util.ArrayList;
 import org.joml.*;
-
-import java.awt.event.KeyEvent;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 //scripting imports
@@ -150,12 +148,12 @@ public class MyGame extends VariableFrameRateGame
 		candle.setLocalTranslation(initialTranslation);
 		candle.setLocalScale(initialScale);
 		
-		shadow = new GameObject(GameObject.root(), shadowS, shadowT);
-		initialTranslation = (new Matrix4f()).translation(20,1,-10);
-		initialScale = (new Matrix4f()).scaling(1f);
-		shadow.setLocalTranslation(initialTranslation);
-		shadow.setLocalScale(initialScale);
-		prizes.add(shadow);
+		// shadow = new GameObject(GameObject.root(), shadowS, shadowT);
+		// initialTranslation = (new Matrix4f()).translation(20,1,-10);
+		// initialScale = (new Matrix4f()).scaling(1f);
+		// shadow.setLocalTranslation(initialTranslation);
+		// shadow.setLocalScale(initialScale);
+		// prizes.add(shadow);
 
 		sph = new GameObject(GameObject.root(), sphS);
 		initialTranslation = (new Matrix4f()).translation(-25,1,-5);
@@ -170,45 +168,45 @@ public class MyGame extends VariableFrameRateGame
 		prizes.add(tor);
 
 		//build pyramid
-		pyr = new GameObject(GameObject.root(), pyrS);
-		initialTranslation = (new Matrix4f()).translation(0,2,0);
-		pyr.setLocalTranslation(initialRotation);
-		initialScale = (new Matrix4f()).scaling(2f);
-		pyr.setLocalScale(initialScale);
-		pyr.getRenderStates().hasLighting(true);
+		// pyr = new GameObject(GameObject.root(), pyrS);
+		// initialTranslation = (new Matrix4f()).translation(0,2,0);
+		// pyr.setLocalTranslation(initialRotation);
+		// initialScale = (new Matrix4f()).scaling(2f);
+		// pyr.setLocalScale(initialScale);
+		// pyr.getRenderStates().hasLighting(true);
 
-		cubM = new GameObject(GameObject.root(), shadowS, shadowT);
-		initialTranslation = (new Matrix4f()).translation(.3f,2,.6f);
-		cubM.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(.06f);
-		cubM.setLocalScale(initialScale);
-		cubM.getRenderStates().setColor(new Vector3f(1,1,1));
-		cubM.setParent(pyr);
-		cubM.propagateTranslation(true);
-		cubM.propagateRotation(false);
-		cubM.getRenderStates().disableRendering();
+		// cubM = new GameObject(GameObject.root(), shadowS, shadowT);
+		// initialTranslation = (new Matrix4f()).translation(.3f,2,.6f);
+		// cubM.setLocalTranslation(initialTranslation);
+		// initialScale = (new Matrix4f()).scaling(.06f);
+		// cubM.setLocalScale(initialScale);
+		// cubM.getRenderStates().setColor(new Vector3f(1,1,1));
+		// cubM.setParent(pyr);
+		// cubM.propagateTranslation(true);
+		// cubM.propagateRotation(false);
+		// cubM.getRenderStates().disableRendering();
 
-		sphM = new GameObject(GameObject.root(), sphS);
-		initialTranslation = (new Matrix4f()).translation(-.6f,2,0);
-		sphM.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(.07f);
-		sphM.setLocalScale(initialScale);
-		sphM.getRenderStates().setColor(new Vector3f(1,1,1));
-		sphM.setParent(pyr);
-		sphM.propagateTranslation(true);
-		sphM.propagateRotation(false);
-		sphM.getRenderStates().disableRendering();
+		// sphM = new GameObject(GameObject.root(), sphS);
+		// initialTranslation = (new Matrix4f()).translation(-.6f,2,0);
+		// sphM.setLocalTranslation(initialTranslation);
+		// initialScale = (new Matrix4f()).scaling(.07f);
+		// sphM.setLocalScale(initialScale);
+		// sphM.getRenderStates().setColor(new Vector3f(1,1,1));
+		// sphM.setParent(pyr);
+		// sphM.propagateTranslation(true);
+		// sphM.propagateRotation(false);
+		// sphM.getRenderStates().disableRendering();
 
-		torM = new GameObject(GameObject.root(), torS);
-		initialTranslation = (new Matrix4f()).translation(.3f,2,-.6f);
-		torM.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(.1f);
-		torM.setLocalScale(initialScale);
-		torM.getRenderStates().setColor(new Vector3f(1,1,1));
-		torM.setParent(pyr);
-		torM.propagateTranslation(true);
-		torM.propagateRotation(false);
-		torM.getRenderStates().disableRendering();
+		// torM = new GameObject(GameObject.root(), torS);
+		// initialTranslation = (new Matrix4f()).translation(.3f,2,-.6f);
+		// torM.setLocalTranslation(initialTranslation);
+		// initialScale = (new Matrix4f()).scaling(.1f);
+		// torM.setLocalScale(initialScale);
+		// torM.getRenderStates().setColor(new Vector3f(1,1,1));
+		// torM.setParent(pyr);
+		// torM.propagateTranslation(true);
+		// torM.propagateRotation(false);
+		// torM.getRenderStates().disableRendering();
 
 		// ground = new GameObject(GameObject.root(), groundS);
 		// initialTranslation = (new Matrix4f()).translation(0,0,0);
@@ -246,34 +244,34 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public void initAudio() {
-		AudioResource resource1, resource2;
-		audioMgr = AudioManagerFactory.createAudioManager(
-		"tage.audio.joal.JOALAudioManager");
-		if (!audioMgr.initialize())
-		{ System.out.println("Audio Manager failed to initialize!");
-		return;
-		}
-		resource1 = audioMgr.createAudioResource(
-		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
-		resource2 = audioMgr.createAudioResource(
-		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
-		hereSound = new Sound(resource1,
-		SoundType.SOUND_EFFECT, 100, true);
-		oceanSound = new Sound(resource2,
-		SoundType.SOUND_EFFECT, 500, true);
-		hereSound.initialize(audioMgr);
-		oceanSound.initialize(audioMgr);
-		hereSound.setMaxDistance(10.0f);
-		hereSound.setMinDistance(0.5f);
-		hereSound.setRollOff(5.0f);
-		oceanSound.setMaxDistance(50.0f);
-		oceanSound.setMinDistance(0.5f);
-		oceanSound.setRollOff(5.0f);
-		hereSound.setLocation(avatar.getWorldLocation());
-		oceanSound.setLocation(pyr.getWorldLocation());
-		setEarParameters();
-		// hereSound.play();
-		oceanSound.play();
+		// AudioResource resource1, resource2;
+		// audioMgr = AudioManagerFactory.createAudioManager(
+		// "tage.audio.joal.JOALAudioManager");
+		// if (!audioMgr.initialize())
+		// { System.out.println("Audio Manager failed to initialize!");
+		// return;
+		// }
+		// resource1 = audioMgr.createAudioResource(
+		// "assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
+		// resource2 = audioMgr.createAudioResource(
+		// "assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
+		// hereSound = new Sound(resource1,
+		// SoundType.SOUND_EFFECT, 100, true);
+		// oceanSound = new Sound(resource2,
+		// SoundType.SOUND_EFFECT, 500, true);
+		// hereSound.initialize(audioMgr);
+		// oceanSound.initialize(audioMgr);
+		// hereSound.setMaxDistance(10.0f);
+		// hereSound.setMinDistance(0.5f);
+		// hereSound.setRollOff(5.0f);
+		// oceanSound.setMaxDistance(50.0f);
+		// oceanSound.setMinDistance(0.5f);
+		// oceanSound.setRollOff(5.0f);
+		// hereSound.setLocation(avatar.getWorldLocation());
+		// oceanSound.setLocation(pyr.getWorldLocation());
+		// setEarParameters();
+		// // hereSound.play();
+		// oceanSound.play();
 	}
 
 	public void setEarParameters() {
@@ -427,7 +425,7 @@ public class MyGame extends VariableFrameRateGame
 		// update inputs and camera
 		im.update((float)elapsTime);
 
-		checkPrizeCollision();
+		//checkPrizeCollision();
 
 		double spinSpeed = 30;
 		float spinDistance = 1;
@@ -435,49 +433,49 @@ public class MyGame extends VariableFrameRateGame
 		//double spinSpeed = (Double) (jsEngine.get("spinSpeed"));
 		//float spinDistance = ((Double) jsEngine.get("spinDistance")).floatValue();
 
-		for (int i = 0; i < collectedPrizes.size(); i++)
-			{
-				activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
-				spinSpeed += 20;
-				spinDistance += .5f;
-			}
+		// for (int i = 0; i < collectedPrizes.size(); i++)
+		// 	{
+		// 		activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
+		// 		spinSpeed += 20;
+		// 		spinDistance += .5f;
+		// 	}
 
 		orbitController.updateCameraPosition();
 
 		// hereSound.setLocation(avatar.getWorldLocation());
-		oceanSound.setLocation(pyr.getWorldLocation());
-		setEarParameters();
+		// oceanSound.setLocation(pyr.getWorldLocation());
+		// setEarParameters();
 
 		processNetworking((float)elapsTime);
 		
 	}
 
-	private void checkPrizeCollision()
-	{
-		for (int i = 0; i < prizes.size(); i++)
-		{
-			if (avatar.getWorldLocation().distance(prizes.get(i).getLocalLocation()) <= 3f)
-			{
-				rc.addTarget(prizes.get(i));
-				fc.addTarget(prizes.get(i));
-				GameObject mini = new GameObject(GameObject.root());
+	// private void checkPrizeCollision()
+	// {
+	// 	for (int i = 0; i < prizes.size(); i++)
+	// 	{
+	// 		if (avatar.getWorldLocation().distance(prizes.get(i).getLocalLocation()) <= 3f)
+	// 		{
+	// 			rc.addTarget(prizes.get(i));
+	// 			fc.addTarget(prizes.get(i));
+	// 			GameObject mini = new GameObject(GameObject.root());
 
-				if (prizes.get(i) == shadow)
-					mini = cubM;
-				else if (prizes.get(i) == tor)
-					mini = torM;
-				else if (prizes.get(i) == sph)
-					mini = sphM;
+	// 			if (prizes.get(i) == shadow)
+	// 				mini = cubM;
+	// 			else if (prizes.get(i) == tor)
+	// 				mini = torM;
+	// 			else if (prizes.get(i) == sph)
+	// 				mini = sphM;
 
-				collectedPrizes.add(mini);
-				mini.getRenderStates().enableRendering();
+	// 			collectedPrizes.add(mini);
+	// 			mini.getRenderStates().enableRendering();
 				
-				prizes.remove(i);
-				if (prizes.size() == 0)
-					rc.addTarget(pyr);
-			}
-		}
-	}
+	// 			prizes.remove(i);
+	// 			if (prizes.size() == 0)
+	// 				rc.addTarget(pyr);
+	// 		}
+	// 	}
+	// }
 
 	private void activatePrize(GameObject prize, double speed, float location)
 	{
@@ -536,6 +534,7 @@ public class MyGame extends VariableFrameRateGame
 		} else {
 			System.out.println("sending join message to protocol host");
 			protClient.sendJoinMessage();
+			protClient.sendNeedNPCMessage();
 		}
 	}
 
@@ -549,6 +548,9 @@ public class MyGame extends VariableFrameRateGame
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 
 	public void killGame(){
+		if (protClient != null && isClientConnected){
+            protClient.sendByeMessage();
+        }
 		shutdown();
 		System.exit(0);
 	}

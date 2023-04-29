@@ -111,18 +111,22 @@ public class ProtocolClient extends GameConnectionClient
 				
 				ghostManager.updateGhostAvatar(ghostID, ghostPosition);
 			}	
+
+			//----------NPC--------------
+
 			// Handle createNPC message
-			// Format: (createNPC,x,y,z)
+			// Format: (createNPC,id,x,y,z)
 
 			if (messageTokens[0].compareTo("createNPC") == 0)
 			{ // create a new ghost NPC
 			// Parse out the position
+			int id = Integer.parseInt(messageTokens[1]);
 			Vector3f ghostPosition = new Vector3f(
-			Float.parseFloat(messageTokens[1]),
 			Float.parseFloat(messageTokens[2]),
-			Float.parseFloat(messageTokens[3]));
+			Float.parseFloat(messageTokens[3]),
+			Float.parseFloat(messageTokens[4]));
 			try
-			{ createGhostNPC(ghostPosition);
+			{ ghostManager.createGhostNPC(id, ghostPosition);
 			} catch (IOException e) { e.printStackTrace(); } // error creating ghost avatar
 			}
 			// Handle isnear message
@@ -230,22 +234,28 @@ public class ProtocolClient extends GameConnectionClient
 
 	// ------------- GHOST NPC SECTION --------------
 
-	private void createGhostNPC(Vector3f position) throws IOException{
-		if (ghostNPC == null)
-			ghostNPC = new GhostNPC(0, game.getNPCShape(), game.getNPCTexture(), position);
-	}
-
-	private void updateGhostNPC(Vector3f position, double gsize){
-		boolean gs;
-		if (ghostNPC == null){
-			try{
-				createGhostNPC(position);
-			} catch (IOException e){
-				System.out.println("error creating npc");
+	public void sendNeedNPCMessage() {
+		{	try 
+			{	String message = new String("needNPC");
+				
+				sendPacket(message);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			ghostNPC.setPosition(position);
-			if (gsize == 1) gs=false; else gs=true;
-			ghostNPC.setSize(gs);
 		}
 	}
+
+	// private void updateGhostNPC(Vector3f position, double gsize){
+	// 	boolean gs;
+	// 	if (ghostNPC == null){
+	// 		try{
+	// 			ghostManager.createGhostNPC(position);
+	// 		} catch (IOException e){
+	// 			System.out.println("error creating npc");
+	// 		}
+	// 		ghostNPC.setPosition(position);
+	// 		if (gsize == 1) gs=false; else gs=true;
+	// 		ghostNPC.setSize(gs);
+	// 	}
+	// }
 }
