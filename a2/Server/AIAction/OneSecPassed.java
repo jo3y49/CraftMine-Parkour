@@ -14,6 +14,6 @@ public class OneSecPassed extends BTCondition{
     }
 
     protected boolean check(){
-        return true;
+        return false;
     }
 }

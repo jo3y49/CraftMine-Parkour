@@ -72,9 +72,12 @@ public class GhostManager
 		}
 	}
 
-	public void updateGhostNPC(int id, Vector3f position){
-		if (ghostNPCs.get(id) != null){
+	public void updateGhostNPC(int id, Vector3f position, double size){
+		try {
 			ghostNPCs.get(id).setPosition(position);
+			ghostNPCs.get(id).setSize(size);
+		} catch (Exception e) {
+			
 		}
 	}
 

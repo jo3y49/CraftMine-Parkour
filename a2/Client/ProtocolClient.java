@@ -141,9 +141,11 @@ public class ProtocolClient extends GameConnectionClient
 				Float.parseFloat(messageTokens[3]),
 				Float.parseFloat(messageTokens[4]));
 
-				double criteria = Double.parseDouble(messageTokens[4]);
+				double criteria = Double.parseDouble(messageTokens[5]);
 
-				ghostManager.updateGhostNPC(id, ghostPosition);
+				Double size = Double.parseDouble(messageTokens[6]);
+
+				ghostManager.updateGhostNPC(id, ghostPosition, size);
 
 				if (ghostManager.checkNear(ghostPosition, criteria)){
 					sendNearMessage();

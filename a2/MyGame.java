@@ -132,7 +132,7 @@ public class MyGame extends VariableFrameRateGame
 
 		// build dolphin in the center of the window
 		avatar = new GameObject(GameObject.root(), dolS, dolT);
-		initialTranslation = (new Matrix4f()).translation(0,1,-5);
+		initialTranslation = (new Matrix4f()).translation(0,1,-10);
 		initialScale = (new Matrix4f()).scaling(3.0f);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(135f));
 		avatar.setLocalTranslation(initialTranslation);

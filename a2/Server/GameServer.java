@@ -231,7 +231,7 @@ public class GameServer  extends GameConnectionServer<UUID> {
         }
     }
 
-    // Format: (moveNPC,id, x,y,z, criteria)
+    // Format: (moveNPC,id, x,y,z, criteria, size)
     public void sendNPCinfo(){
         try {
             String message = new String("moveNPC," + 0);
@@ -239,11 +239,13 @@ public class GameServer  extends GameConnectionServer<UUID> {
             message += "," + (npcCtrl.getNPC()).getY();
             message += "," + (npcCtrl.getNPC()).getZ();
             message += "," + (npcCtrl.getCriteria());
+            message += "," + (npcCtrl.getNPC().getSize());
             sendPacketToAll(message);
         } catch (IOException e){
             e.printStackTrace();
         }
     }
+
     public void sendNPCstart(UUID clientID){
 
     }

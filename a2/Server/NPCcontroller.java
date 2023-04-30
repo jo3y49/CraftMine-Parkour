@@ -17,7 +17,7 @@ public class NPCcontroller{
     private boolean nearFlag = false;
     private long thinkStartTime, tickStartTime, lastThinkUpdateTime, lastTickUpdateTime;
     private GameServer server;
-    private double criteria = 4;
+    private double criteria = 8;
 
     public void updateNPCs(){
         npc.updateLocation();
