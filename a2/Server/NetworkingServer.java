@@ -3,28 +3,26 @@ import java.io.IOException;
 
 public class NetworkingServer 
 {
-	private GameServer UDPServer;
+	private GameServer server;
 	private NPCcontroller npcCtrl;
 
-	public NetworkingServer(int serverPort, String protocol) 
+	public NetworkingServer(int serverPort) 
 	{	
 		npcCtrl = new NPCcontroller();
 
 		try{
-			UDPServer = new GameServer(serverPort, npcCtrl);
+			server = new GameServer(serverPort, npcCtrl);
 		} catch (IOException e){
 			System.out.println("server didn't start");
 			e.printStackTrace();
 		}
-		System.out.println("ai server starting");
-		npcCtrl.start(UDPServer);
-
+		System.out.println("server starting");
+		npcCtrl.start(server);
 	}
 
-	public static void main(String[] args) 
-	{	if(args.length > 0)
-		{	NetworkingServer app = new NetworkingServer(Integer.parseInt(args[0]), args[1]);
+	public static void main(String[] args) {
+		if(args.length > 0) {
+			NetworkingServer app = new NetworkingServer(Integer.parseInt(args[0]));
 		}
 	}
-
 }

@@ -12,12 +12,12 @@ import tage.networking.server.GameConnectionServer;
 
 public class NPCcontroller{
     private NPC npc;
-    Random rn = new Random();
-    BehaviorTree bt = new BehaviorTree(BTCompositeType.SELECTOR);
-    boolean nearFlag = false;
-    long thinkStartTime, tickStartTime, lastThinkUpdateTime, lastTickUpdateTime;
-    GameServer server;
-    double criteria = 2;
+    private Random rn = new Random();
+    private BehaviorTree bt = new BehaviorTree(BTCompositeType.SELECTOR);
+    private boolean nearFlag = false;
+    private long thinkStartTime, tickStartTime, lastThinkUpdateTime, lastTickUpdateTime;
+    private GameServer server;
+    private double criteria = 4;
 
     public void updateNPCs(){
         npc.updateLocation();
@@ -36,6 +36,7 @@ public class NPCcontroller{
 
     public void setupNPCs(){
         npc = new NPC();
+        npc.randomizeLocation(rn.nextInt(40), rn.nextInt(40));
 
     }
 

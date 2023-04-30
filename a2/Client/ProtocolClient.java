@@ -129,18 +129,21 @@ public class ProtocolClient extends GameConnectionClient
 			{ ghostManager.createGhostNPC(id, ghostPosition);
 			} catch (IOException e) { e.printStackTrace(); } // error creating ghost avatar
 			}
-			// Handle isnear message
-			// Format: (isnr, x,y,z, )
+			// Handle moneNPC message
+			// Format: (monveNPC,id, x,y,z,distance )
 
-			if (messageTokens[0].compareTo("isnr") == 0)
-			{ // create a new ghost NPC
+			if (messageTokens[0].compareTo("moveNPC") == 0)
+			{ // moves npc and checks if near avatar
 				// Parse out the position
+				int id = Integer.parseInt(messageTokens[1]);
 				Vector3f ghostPosition = new Vector3f(
-				Float.parseFloat(messageTokens[1]),
 				Float.parseFloat(messageTokens[2]),
-				Float.parseFloat(messageTokens[3]));
+				Float.parseFloat(messageTokens[3]),
+				Float.parseFloat(messageTokens[4]));
 
 				double criteria = Double.parseDouble(messageTokens[4]);
+
+				ghostManager.updateGhostNPC(id, ghostPosition);
 
 				if (ghostManager.checkNear(ghostPosition, criteria)){
 					sendNearMessage();
@@ -191,6 +194,7 @@ public class ProtocolClient extends GameConnectionClient
 	public void sendNearMessage()
 	{ 	try
 		{
+			System.out.println("avatar near npc");
 			String message = "isnear";
 
 			sendPacket(message);
@@ -244,18 +248,4 @@ public class ProtocolClient extends GameConnectionClient
 			}
 		}
 	}
-
-	// private void updateGhostNPC(Vector3f position, double gsize){
-	// 	boolean gs;
-	// 	if (ghostNPC == null){
-	// 		try{
-	// 			ghostManager.createGhostNPC(position);
-	// 		} catch (IOException e){
-	// 			System.out.println("error creating npc");
-	// 		}
-	// 		ghostNPC.setPosition(position);
-	// 		if (gsize == 1) gs=false; else gs=true;
-	// 		ghostNPC.setSize(gs);
-	// 	}
-	// }
 }

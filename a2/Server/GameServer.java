@@ -80,9 +80,14 @@ public class GameServer  extends GameConnectionServer<UUID> {
         // Received Message Format: (needNPC,id)
         if(messageTokens[0].compareTo("needNPC") == 0) {
             System.out.println("server got a needNPC message");
-            String[] location = {"0", "0", "0"};
+            String[] location = {
+                Double.toString(npcCtrl.getNPC().getX()),
+                Double.toString(npcCtrl.getNPC().getY()),
+                Double.toString(npcCtrl.getNPC().getZ())
+            };
             sendCreateNPCmsg(location);
         }
+        
         // Case where server receives notice that an av is close to the npc
         // Received Message Format: (isnear)
         if(messageTokens[0].compareTo("isnear") == 0) {
@@ -226,8 +231,18 @@ public class GameServer  extends GameConnectionServer<UUID> {
         }
     }
 
+    // Format: (moveNPC,id, x,y,z, criteria)
     public void sendNPCinfo(){
-
+        try {
+            String message = new String("moveNPC," + 0);
+            message += "," + (npcCtrl.getNPC()).getX();
+            message += "," + (npcCtrl.getNPC()).getY();
+            message += "," + (npcCtrl.getNPC()).getZ();
+            message += "," + (npcCtrl.getCriteria());
+            sendPacketToAll(message);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
     public void sendNPCstart(UUID clientID){
 

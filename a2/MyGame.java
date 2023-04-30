@@ -71,19 +71,16 @@ public class MyGame extends VariableFrameRateGame
 	private Sound oceanSound, hereSound;
 
 
-	public MyGame(String serverAddress, int serverPort, String protocol) { 
+	public MyGame(String serverAddress, int serverPort) { 
 		super(); 
 		gm = new GhostManager(this);
 		this.serverAddress = serverAddress;
-		this.serverPort = serverPort;
-		if (protocol.toUpperCase().compareTo("TCP") == 0)
-			this.serverProtocol = ProtocolType.TCP;
-		else 
-			this.serverProtocol = ProtocolType.UDP;
+		this.serverPort = serverPort; 
+		this.serverProtocol = ProtocolType.UDP;
 	}
 
 	public static void main(String[] args)
-	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]));
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();

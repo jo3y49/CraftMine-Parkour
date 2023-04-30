@@ -71,6 +71,13 @@ public class GhostManager
 		{	System.out.println("tried to update ghost avatar position, but unable to find ghost in list");
 		}
 	}
+
+	public void updateGhostNPC(int id, Vector3f position){
+		if (ghostNPCs.get(id) != null){
+			ghostNPCs.get(id).setPosition(position);
+		}
+	}
+
 	public boolean checkNear(Vector3f p, double criteria) {
         return game.getPlayerPosition().distance(p) < criteria;
     }
