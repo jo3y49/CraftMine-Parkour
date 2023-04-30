@@ -75,7 +75,7 @@ public class MyGame extends VariableFrameRateGame
 
 	//physics variables
 	private PhysicsEngine physicsEngine;
-	private PhysicsObject ball1P, ball2P, terrP; //should change these
+	private PhysicsObject ball1P, avatarP, terrP; //should change these
 	private boolean running = true;
 	private float vals[] = new float[16];
 	//not sure if these are needed for physics
@@ -373,6 +373,13 @@ public class MyGame extends VariableFrameRateGame
 		ball1P.setBounciness(1.0f);
 		ball1.setPhysicsObject(ball1P);
 
+		//player character physics object creation
+		translation = new Matrix4f(avatar.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		avatarP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.5f);
+		avatarP.setBounciness(0.0f);
+		avatar.setPhysicsObject(avatarP);
+
 		
 		//initialize the scripting engine
 		ScriptEngineManager factory = new ScriptEngineManager();
@@ -433,7 +440,8 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.DOWN, moveCamDown);
 		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
 		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
-		setPressedActionToKeyboard(Key.SPACE, toggle);
+		setPressedActionToKeyboard(Key.P, toggle);
+
 
 		initAudio();
 		setupNetworking();
@@ -466,20 +474,20 @@ public class MyGame extends VariableFrameRateGame
 		(engine.getHUDmanager()).setHUD2font(GLUT.BITMAP_HELVETICA_18);
 
 		//running physics engine
-		// double prevTime;
-		// double startTime;
-		Matrix4f currentTranslation, currentRotation;
-		double totalTime = System.currentTimeMillis() - startTime;
-		double elapsedTime = System.currentTimeMillis() - prevTime;
-		prevTime = System.currentTimeMillis();
-		double amt = elapsedTime * 0.03;
-		double amtt = totalTime * 0.001;
+
+		//I don't think any of this is needed so we can probably delete it
+		// Matrix4f currentTranslation, currentRotation;
+		// double totalTime = System.currentTimeMillis() - startTime;
+		// double elapsedTime = System.currentTimeMillis() - prevTime;
+		// prevTime = System.currentTimeMillis();
+		// double amt = elapsedTime * 0.03;
+		// double amtt = totalTime * 0.001;
 
 		if (running){ 
 			Matrix4f mat = new Matrix4f();
 			Matrix4f mat2 = new Matrix4f().identity();
 			checkForCollisions();
-			physicsEngine.update((float)elapsedTime);
+			physicsEngine.update((float)elapsTime);
 			for (GameObject go:engine.getSceneGraph().getGameObjects()){ 
 				if (go.getPhysicsObject() != null){ 
 					mat.set(toFloatArray(go.getPhysicsObject().getTransform()));
