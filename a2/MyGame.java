@@ -24,6 +24,13 @@ import java.io.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+//physics imports
+import tage.physics.PhysicsEngine;
+import tage.physics.PhysicsObject;
+import tage.physics.PhysicsEngineFactory;
+import tage.physics.JBullet.*;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.collision.dispatch.CollisionObject;
 
 
 public class MyGame extends VariableFrameRateGame
@@ -65,6 +72,17 @@ public class MyGame extends VariableFrameRateGame
 	//audio variables
 	private IAudioManager audioMgr;
 	private Sound oceanSound, hereSound;
+
+	//physics variables
+	private PhysicsEngine physicsEngine;
+	private PhysicsObject ball1P, ball2P, terrP; //should change these
+	private boolean running = true;
+	private float vals[] = new float[16];
+	//not sure if these are needed for physics
+	double prevTime;
+	double startTime;
+	//test ball for physics, can delete later probably
+	private GameObject ball1;
 
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
@@ -229,6 +247,11 @@ public class MyGame extends VariableFrameRateGame
 		initialScale = (new Matrix4f()).scaling(20.0f, 1.0f, 20.0f);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
+
+		//test ball for physics, can delete later probably
+		ball1 = new GameObject(GameObject.root(), sphS, grass);
+		ball1.setLocalTranslation((new Matrix4f()).translation(0, 4, 0));
+		ball1.setLocalScale((new Matrix4f()).scaling(0.75f));
 	}
 
 	@Override
@@ -324,7 +347,34 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void initializeGame()
 	{
-		// initialize the scripting engine
+		// --- initialize physics system ---
+		String engineS = "tage.physics.JBullet.JBulletPhysicsEngine";
+		float[] gravity = {0f, -5f, 0f};
+		physicsEngine = PhysicsEngineFactory.createPhysicsEngine(engineS);
+		physicsEngine.initSystem();
+		physicsEngine.setGravity(gravity);
+
+		// --- create physics world ---
+		float mass = 1.0f;
+		float up[ ] = {0,1,0};
+		double[ ] tempTransform;
+
+
+		Matrix4f translation = new Matrix4f(terr.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		terrP = physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), tempTransform, up, 0.0f);
+		terrP.setBounciness(1.0f);
+		terr.setPhysicsObject(terrP);
+
+		//test for physics can delete later
+		translation = new Matrix4f(ball1.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		ball1P = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+		ball1P.setBounciness(1.0f);
+		ball1.setPhysicsObject(ball1P);
+
+		
+		//initialize the scripting engine
 		ScriptEngineManager factory = new ScriptEngineManager();
 		jsEngine = factory.getEngineByName("js");
 
@@ -415,6 +465,35 @@ public class MyGame extends VariableFrameRateGame
 		(engine.getHUDmanager()).setHUD1font(GLUT.BITMAP_TIMES_ROMAN_24);
 		(engine.getHUDmanager()).setHUD2font(GLUT.BITMAP_HELVETICA_18);
 
+		//running physics engine
+		// double prevTime;
+		// double startTime;
+		Matrix4f currentTranslation, currentRotation;
+		double totalTime = System.currentTimeMillis() - startTime;
+		double elapsedTime = System.currentTimeMillis() - prevTime;
+		prevTime = System.currentTimeMillis();
+		double amt = elapsedTime * 0.03;
+		double amtt = totalTime * 0.001;
+
+		if (running){ 
+			Matrix4f mat = new Matrix4f();
+			Matrix4f mat2 = new Matrix4f().identity();
+			checkForCollisions();
+			physicsEngine.update((float)elapsedTime);
+			for (GameObject go:engine.getSceneGraph().getGameObjects()){ 
+				if (go.getPhysicsObject() != null){ 
+					mat.set(toFloatArray(go.getPhysicsObject().getTransform()));
+					mat2.set(3,0,mat.m30());
+					mat2.set(3,1,mat.m31());
+					mat2.set(3,2,mat.m32());
+					go.setLocalTranslation(mat2);
+				}
+			}
+		}
+	
+
+
+
 		// update inputs and camera
 		im.update((float)elapsTime);
 
@@ -503,6 +582,67 @@ public class MyGame extends VariableFrameRateGame
 	public GameObject getAvatar() { return avatar; }
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
 	
+
+	// ----------------physics---------------------
+	private void checkForCollisions() { 
+		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
+		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
+		com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
+		com.bulletphysics.dynamics.RigidBody object1, object2;
+		com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
+
+		dynamicsWorld = ((JBulletPhysicsEngine)physicsEngine).getDynamicsWorld();
+		dispatcher = dynamicsWorld.getDispatcher();
+		int manifoldCount = dispatcher.getNumManifolds();
+		
+		for (int i=0; i<manifoldCount; i++) {
+			manifold = dispatcher.getManifoldByIndexInternal(i);
+			object1 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody0();
+			object2 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody1();
+			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
+			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
+		
+			for (int j = 0; j < manifold.getNumContacts(); j++) {
+				contactPoint = manifold.getContactPoint(j);
+				if (contactPoint.getDistance() < 0.0f) {
+					System.out.println("---- hit between " + obj1 + " and " + obj2);
+					break;
+				} 
+			}
+		}
+	}
+
+	private float[] toFloatArray(double[] arr){ 
+		if (arr == null) return null;
+		
+		int n = arr.length;
+		float[] ret = new float[n];
+		
+		for (int i = 0; i < n; i++){ 
+			ret[i] = (float)arr[i];
+		}
+		
+		return ret;
+		}
+		
+	private double[] toDoubleArray(float[] arr){ 
+		if (arr == null) return null;
+	
+		int n = arr.length;
+		double[] ret = new double[n];
+	
+		for (int i = 0; i < n; i++){ 
+			ret[i] = (double)arr[i];
+		}
+		
+		return ret;
+		}
+
+
+
+
+
+
 	// ------------Networking-----------------------
 
 	public ObjShape getGhostShape() { return ghostS; }
