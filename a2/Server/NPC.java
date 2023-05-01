@@ -1,32 +1,45 @@
 package a2.Server;
 
+import org.joml.Vector3f;
+
 public class NPC {
-    double locX, locY, locZ;
-    double dir = .1;
+    Vector3f location;
+    float dir = .1f;
     double size = 1;
+    float speed = .1f;
+    boolean seePlayer = false;
+    Vector3f targetLocation;
 
     public NPC(){
-        locX = 0;
-        locY = 0;
-        locZ = 0;
+        location = new Vector3f();
     }
 
     public void randomizeLocation(int seedX, int seedZ){
-        locX = ((double) seedX)/4 - 5;
-        locZ = -2;
+        
     }
 
-    public double getX() {return locX;}
-    public double getY() {return locY;}
-    public double getZ() {return locZ;}
+    public double getX() {return location.x;}
+    public double getY() {return location.y;}
+    public double getZ() {return location.z;}
 
     public void getBig() {size=2;}
     public void getSmall() {size=1;}
     public double getSize() {return size;}
 
+    public void setSeePlayer(boolean s) {seePlayer=s;}
+    public void setTargetLocation(Vector3f l) {targetLocation=l;}
+
     public void updateLocation(){
-        if (locX > 10) dir=-.1f;
-        if (locX < -10) dir=.1f;
-        locX += dir;
+        if (seePlayer) {
+            Vector3f direction = new Vector3f();
+            targetLocation.sub(location, direction).normalize();
+            direction.mul(speed);
+            location.add(direction);
+        }
+        else {
+            if (location.x > 10) dir=-.1f;
+            if (location.x < -10) dir=.1f;
+            location.add(dir, 0, 0);
+        }
     }
 }

@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.util.UUID;
 
 import org.joml.Random;
+import org.joml.Vector3f;
 
 import a2.Server.AIAction.*;
 import tage.ai.behaviortrees.*;
@@ -65,7 +66,13 @@ public class NPCcontroller{
         bt.insert(10, new OneSecPassed(this, npc, false));
         bt.insert(10, new GetSmall(npc));
         bt.insert(20, new AvatarNear(server, this, npc, false));
-        bt.insert(20, new GetBig(npc));
+        bt.insert(20, new MoveToPlayer(npc));
+        //bt.insert(20, new GetBig(npc));
+    }
+
+    public void handleNear(Vector3f playerLocation) {
+        nearFlag = true;
+        npc.setTargetLocation(playerLocation);
     }
 
     public NPC getNPC() {return npc;}

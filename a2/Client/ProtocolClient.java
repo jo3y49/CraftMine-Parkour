@@ -199,6 +199,10 @@ public class ProtocolClient extends GameConnectionClient
 			System.out.println("avatar near npc");
 			String message = "isnear";
 
+			message += "," + game.getAvatar().getWorldLocation().x();
+			message += "," + game.getAvatar().getWorldLocation().y();
+			message += "," + game.getAvatar().getWorldLocation().z();
+
 			sendPacket(message);
 		} catch (IOException e){
 			e.printStackTrace();

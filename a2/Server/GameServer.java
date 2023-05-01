@@ -3,6 +3,9 @@ package a2.Server;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.UUID;
+
+import org.joml.Vector3f;
+
 import tage.networking.server.GameConnectionServer;
 import tage.networking.server.IClientInfo;
 
@@ -89,9 +92,14 @@ public class GameServer  extends GameConnectionServer<UUID> {
         }
         
         // Case where server receives notice that an av is close to the npc
-        // Received Message Format: (isnear)
+        // Received Message Format: (isnear, x, y, z)
         if(messageTokens[0].compareTo("isnear") == 0) {
-            handleNearTiming();
+            Vector3f playerLocation = new Vector3f(
+                Float.parseFloat(messageTokens[1]),
+                Float.parseFloat(messageTokens[2]),
+                Float.parseFloat(messageTokens[3])
+            );
+            npcCtrl.handleNear(playerLocation);
         }
     }
 
@@ -212,10 +220,6 @@ public class GameServer  extends GameConnectionServer<UUID> {
             System.out.println("couldn't send msg");
             e.printStackTrace();
         }
-    }
-
-    public void handleNearTiming(){
-        npcCtrl.setNearFlag(true);
     }
 
     public void sendCreateNPCmsg(String[] position){
