@@ -374,9 +374,13 @@ public class MyGame extends VariableFrameRateGame
 		ball1.setPhysicsObject(ball1P);
 
 		//player character physics object creation
+		//wants xyz for box
+		//to make it falling while moving, you want to update physics object while moving
+		float avatarSize[] () //avatar getlocal
 		translation = new Matrix4f(avatar.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
 		avatarP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.5f);
+		avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, 0.5f);
 		avatarP.setBounciness(0.0f);
 		avatar.setPhysicsObject(avatarP);
 
@@ -615,6 +619,7 @@ public class MyGame extends VariableFrameRateGame
 				if (contactPoint.getDistance() < 0.0f) {
 					System.out.println("---- hit between " + obj1 + " and " + obj2);
 					break;
+					//might need to add code here for when things collide
 				} 
 			}
 		}
