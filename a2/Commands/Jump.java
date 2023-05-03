@@ -21,7 +21,7 @@ public class Jump  extends AbstractInputAction {
     public void performAction(float time, Event e) {
 
         
-
+            //apply force  0 8 0, upx upy, upz
 
     }
 }
