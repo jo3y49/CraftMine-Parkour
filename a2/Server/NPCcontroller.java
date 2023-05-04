@@ -63,11 +63,14 @@ public class NPCcontroller{
     public void setupBehaviorTree(){
         bt.insertAtRoot(new BTSequence(10));
         bt.insertAtRoot(new BTSequence(20));
-        bt.insert(10, new OneSecPassed(this, npc, false));
-        bt.insert(10, new GetSmall(npc));
-        bt.insert(20, new AvatarNear(server, this, npc, false));
-        bt.insert(20, new MoveToPlayer(npc));
+        bt.insert(10, new AvatarNear(server, this, npc, false));
+        bt.insert(10, new MoveToPlayer(npc));
+        bt.insert(10, new GetBig(npc));
+        bt.insert(20, new OneSecPassed(this, npc, false));
+        bt.insert(20, new GetSmall(npc));
         //bt.insert(20, new GetBig(npc));
+        
+
     }
 
     public void handleNear(Vector3f playerLocation) {
