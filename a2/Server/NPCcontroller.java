@@ -61,13 +61,19 @@ public class NPCcontroller{
         bt.insert(10, new AvatarNear(server, this, npc, false));
         bt.insert(10, new MoveToPlayer(npc));
         bt.insert(10, new GetBig(npc));
-        bt.insert(20, new OneSecPassed(this, npc, false));
+        bt.insert(20, new AvatarNear(server, this, npc, true));
+        // bt.insert(20, new OneSecPassed(this, npc, false));
+        // bt.insert(20, new MoveToOrigin(npc));
         bt.insert(20, new GetSmall(npc));
     }
 
     public void handleNear(Vector3f playerLocation) {
         nearFlag = true;
         npc.setTargetLocation(playerLocation);
+    }
+    public void handleNotNear() {
+        nearFlag = false;
+        npc.setSeePlayer(false);
     }
 
     public NPC getNPC() {return npc;}

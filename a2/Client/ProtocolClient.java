@@ -141,6 +141,8 @@ public class ProtocolClient extends GameConnectionClient
 
 				if (ghostManager.checkNear(ghostPosition, criteria)){
 					sendNearMessage();
+				} else {
+					sendFarMessage();
 				}
 			}
 		}
@@ -196,6 +198,14 @@ public class ProtocolClient extends GameConnectionClient
 			message += "," + game.getAvatar().getWorldLocation().z();
 
 			sendPacket(message);
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	public void sendFarMessage() {
+		try {
+			sendPacket("isnotnear");
 		} catch (IOException e){
 			e.printStackTrace();
 		}

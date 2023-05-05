@@ -101,6 +101,10 @@ public class GameServer  extends GameConnectionServer<UUID> {
             );
             npcCtrl.handleNear(playerLocation);
         }
+
+        if(messageTokens[0].compareTo("isnotnear") == 0) {
+            npcCtrl.handleNotNear();
+        }
     }
 
     // ------------ SENDING CLIENT MESSAGES -----------------

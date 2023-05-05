@@ -6,7 +6,7 @@ public class NPC {
     Vector3f location;
     float dir = .1f;
     double size = 1;
-    float speed = .1f;
+    float speed = .08f;
     boolean seePlayer = false;
     Vector3f targetLocation;
 
