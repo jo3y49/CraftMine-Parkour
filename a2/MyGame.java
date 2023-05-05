@@ -149,7 +149,7 @@ public class MyGame extends VariableFrameRateGame
 
 		// build dolphin in the center of the window
 		avatar = new GameObject(GameObject.root(), dolS, dolT);
-		initialTranslation = (new Matrix4f()).translation(0,1,-5);
+		initialTranslation = (new Matrix4f()).translation(0,3,-5);
 		initialScale = (new Matrix4f()).scaling(3.0f);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(135f));
 		avatar.setLocalTranslation(initialTranslation);
@@ -252,6 +252,7 @@ public class MyGame extends VariableFrameRateGame
 		ball1 = new GameObject(GameObject.root(), sphS, grass);
 		ball1.setLocalTranslation((new Matrix4f()).translation(0, 4, 0));
 		ball1.setLocalScale((new Matrix4f()).scaling(0.75f));
+
 	}
 
 	@Override
@@ -364,6 +365,7 @@ public class MyGame extends VariableFrameRateGame
 		tempTransform = toDoubleArray(translation.get(vals));
 		terrP = physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), tempTransform, up, 0.0f);
 		terrP.setBounciness(1.0f);
+		terrP.setFriction(0.5f);
 		terr.setPhysicsObject(terrP);
 
 		//test for physics can delete later
@@ -374,14 +376,15 @@ public class MyGame extends VariableFrameRateGame
 		ball1.setPhysicsObject(ball1P);
 
 		//player character physics object creation
-		//wants xyz for box
 		//to make it falling while moving, you want to update physics object while moving
-		float avatarSize[] () //avatar getlocal
+		float avatarSize[] = {2.0f, 1.0f, 3.0f};
 		translation = new Matrix4f(avatar.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
-		avatarP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.5f);
-		avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, 0.5f);
+		//avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, avatarSize);
+		avatarP = physicsEngine.addCapsuleObject(physicsEngine.nextUID(), mass, tempTransform, 1, 1);
 		avatarP.setBounciness(0.0f);
+		avatarP.setFriction(1);
+		//avatarP.setTransform(tempTransform);
 		avatar.setPhysicsObject(avatarP);
 
 		
@@ -430,6 +433,7 @@ public class MyGame extends VariableFrameRateGame
 		CameraMovement moveCamRight = new CameraMovement(cS, this, "right");
 
 		ArrowToggle toggle = new ArrowToggle(x, y, z);
+		Jump jump = new Jump(this, ball1P);
 
 		setHeldButtonToGamepad(Axis.Y, moveController);
 		setHeldButtonToGamepad(Axis.X, YawController);
@@ -445,6 +449,7 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
 		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
 		setPressedActionToKeyboard(Key.P, toggle);
+		setPressedActionToKeyboard(Key.SPACE, jump);
 
 
 		initAudio();
@@ -461,7 +466,9 @@ public class MyGame extends VariableFrameRateGame
 		// avatar follows terrain map
 		Vector3f loc = avatar.getWorldLocation();
 		float height = terr.getHeight(loc.x(), loc.z());
-		avatar.setLocalLocation(loc.x(), height + 1, loc.z());
+		avatar.setLocalLocation(loc.x(), loc.y() + height, loc.z());
+		updateAvatarPhysicsObject();
+		System.out.println("physics avatar location:" + avatarP.getTransform().toString());
 
 		// build and set HUD
 		String collectedStr = Integer.toString(collectedPrizes.size());
@@ -494,6 +501,7 @@ public class MyGame extends VariableFrameRateGame
 			physicsEngine.update((float)elapsTime);
 			for (GameObject go:engine.getSceneGraph().getGameObjects()){ 
 				if (go.getPhysicsObject() != null){ 
+					//System.out.println(go.getPhysicsObject());
 					mat.set(toFloatArray(go.getPhysicsObject().getTransform()));
 					mat2.set(3,0,mat.m30());
 					mat2.set(3,1,mat.m31());
@@ -592,8 +600,17 @@ public class MyGame extends VariableFrameRateGame
 
 	public Engine getEngine() { return engine; }
 	public GameObject getAvatar() { return avatar; }
+	public GameObject getBall() { return ball1; }
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
 	
+
+	public void updateAvatarPhysicsObject(){
+		double[ ] tempTransform;
+		Matrix4f translation = new Matrix4f(avatar.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		avatarP.setTransform(tempTransform);
+		
+	}
 
 	// ----------------physics---------------------
 	private void checkForCollisions() { 
@@ -616,7 +633,7 @@ public class MyGame extends VariableFrameRateGame
 		
 			for (int j = 0; j < manifold.getNumContacts(); j++) {
 				contactPoint = manifold.getContactPoint(j);
-				if (contactPoint.getDistance() < 0.0f) {
+				if (contactPoint.getDistance() <= 0.0f) {
 					System.out.println("---- hit between " + obj1 + " and " + obj2);
 					break;
 					//might need to add code here for when things collide

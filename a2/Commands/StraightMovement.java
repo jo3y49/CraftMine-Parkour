@@ -28,5 +28,6 @@ public class StraightMovement extends AbstractInputAction
 
         av.straightMovement(moveSpeed); 
         game.getProtClient().sendMoveMessage(av.getWorldLocation());
+        game.updateAvatarPhysicsObject();
     }
 }
