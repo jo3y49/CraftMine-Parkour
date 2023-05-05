@@ -635,11 +635,6 @@ public class MyGame extends VariableFrameRateGame
 
 	public void rotateAvatarPhysicsObject(float rs){
 		double[ ] tempTransform;
-		// Matrix4f translation = new Matrix4f(avatar.getLocalRotation());
-		// translation.set(3, 0, translation.get(3, 0) + rs);
-		// tempTransform = toDoubleArray(translation.get(vals));
-		// avatarP.setTransform(tempTransform);
-
 
 
 		AxisAngle4f aa = new AxisAngle4f();
@@ -650,14 +645,17 @@ public class MyGame extends VariableFrameRateGame
 
 
 		transform.getRotation(aa);
-		//System.out.println("aa:" + aa);
+		System.out.println("aa angle:" + aa.angle);
+		System.out.println("aa y:" + aa.x);
+		System.out.println("aa x:" + aa.y);
+		System.out.println("aa z:" + aa.z);
 
-		//aa.set(rs, aa.x, aa.y, aa.z);
+		aa.set(rs, aa.x, aa.y, aa.z);
 
 		Matrix4f rotMatrix = new Matrix4f();
 		rotMatrix.set(toFloatArray(avatarP.getTransform()));
 		//System.out.println("before:" + rotMatrix);
-		//rotMatrix.rotate(aa);
+		rotMatrix.rotate(aa);
 		//System.out.println("after:" +rotMatrix);
 		tempTransform = toDoubleArray(rotMatrix.get(vals));
 		avatarP.setTransform(tempTransform);
