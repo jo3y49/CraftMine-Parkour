@@ -1,30 +1,28 @@
 package a2.Server;
 import java.io.IOException;
-import tage.networking.IGameConnection.ProtocolType;
 
 public class NetworkingServer 
 {
-	private GameServerUDP thisUDPServer;
-	private GameServerTCP thisTCPServer;
+	private GameServer server;
+	private NPCcontroller npcCtrl;
 
-	public NetworkingServer(int serverPort, String protocol) 
-	{	try 
-		{	if(protocol.toUpperCase().compareTo("TCP") == 0)
-			{	thisTCPServer = new GameServerTCP(serverPort);
-			}
-			else
-			{	thisUDPServer = new GameServerUDP(serverPort);
-			}
-		} 
-		catch (IOException e) 
-		{	e.printStackTrace();
+	public NetworkingServer(int serverPort) 
+	{	
+		npcCtrl = new NPCcontroller();
+
+		try{
+			server = new GameServer(serverPort, npcCtrl);
+		} catch (IOException e){
+			System.out.println("server didn't start");
+			e.printStackTrace();
 		}
+		System.out.println("server starting");
+		npcCtrl.start(server);
 	}
 
-	public static void main(String[] args) 
-	{	if(args.length > 1)
-		{	NetworkingServer app = new NetworkingServer(Integer.parseInt(args[0]), args[1]);
+	public static void main(String[] args) {
+		if(args.length > 0) {
+			NetworkingServer app = new NetworkingServer(Integer.parseInt(args[0]));
 		}
 	}
-
 }

@@ -1,5 +1,10 @@
 package a2;
 
+import a2.Commands.*;
+import a2.Shapes.*;
+import a2.Client.*;
+
+//tage imports
 import tage.*;
 import tage.audio.*;
 import tage.shapes.*;
@@ -7,21 +12,20 @@ import tage.input.*;
 import tage.input.action.*;
 import tage.nodeControllers.*;
 import tage.networking.IGameConnection.ProtocolType;
+
 import net.java.games.input.Component.Identifier.*;
 import java.lang.Math;
 import java.util.ArrayList;
 import org.joml.*;
 import com.jogamp.opengl.util.gl2.GLUT;
-import a2.Commands.*;
-import a2.Shapes.*;
-import a2.Client.*;
+
 //scripting imports
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.*;
+
 //networking imports
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -37,9 +41,10 @@ public class MyGame extends VariableFrameRateGame
 	private CameraOrbit3D orbitController;
 	private Light light1;
 
-	private GameObject avatar, candle, cub, cubM, tor, torM, sph, sphM, pyr,  x, y, z;
-	private ObjShape dolS, ghostS, candS, cubS, torS, pyrS, sphS, linxS, linyS, linzS;
-	private TextureImage dolT, ghostT, candT, cubePattern;
+	private GameObject avatar, candle, shadow, cubM, tor, torM, sph, sphM, pyr,  x, y, z;
+	private AnimatedShape avatarA;
+	private ObjShape ghostS, candS, shadowS, torS, pyrS, sphS, linxS, linyS, linzS;
+	private TextureImage dolT, ghostT, candT, shadowT;
 
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
@@ -67,19 +72,16 @@ public class MyGame extends VariableFrameRateGame
 	private Sound oceanSound, hereSound;
 
 
-	public MyGame(String serverAddress, int serverPort, String protocol) { 
+	public MyGame(String serverAddress, int serverPort) { 
 		super(); 
 		gm = new GhostManager(this);
 		this.serverAddress = serverAddress;
-		this.serverPort = serverPort;
-		if (protocol.toUpperCase().compareTo("TCP") == 0)
-			this.serverProtocol = ProtocolType.TCP;
-		else 
-			this.serverProtocol = ProtocolType.UDP;
+		this.serverPort = serverPort; 
+		this.serverProtocol = ProtocolType.UDP;
 	}
 
 	public static void main(String[] args)
-	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]));
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
@@ -87,10 +89,11 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void loadShapes()
-	{	dolS = new ImportedModel("dolphinHighPoly.obj");
+	{	avatarA = new AnimatedShape("Player.rkm", "Player.rks");
+		avatarA.loadAnimation("walk", "Player.rka");
 		ghostS = new ImportedModel("Candle.obj");
 		candS = new ImportedModel("Candle.obj");
-		cubS = new Cube();
+		shadowS = new Cube();
 		torS = new Torus(.5f, .2f, 48);
 		pyrS = new ManualPyramid();
 		sphS = new Sphere();
@@ -108,7 +111,7 @@ public class MyGame extends VariableFrameRateGame
 		dolT = new TextureImage("Dolphin_HighPolyUV.png");
 		ghostT = new TextureImage("Candle.png");
 		candT = new TextureImage("Candle.png");
-		cubePattern = new TextureImage("Cube_Decoration.png");
+		shadowT = new TextureImage("Cube_Decoration.png");
 
 		//Need to make hill/grass textures
 		hills = new TextureImage("Hills.png");
@@ -130,13 +133,13 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialScale, initialRotation;
 
 		// build dolphin in the center of the window
-		avatar = new GameObject(GameObject.root(), dolS, dolT);
-		initialTranslation = (new Matrix4f()).translation(0,1,-5);
-		initialScale = (new Matrix4f()).scaling(3.0f);
-		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(135f));
+		avatar = new GameObject(GameObject.root(), avatarA, dolT);
+		initialTranslation = (new Matrix4f()).translation(0,1,-10);
+		initialScale = (new Matrix4f()).scaling(.5f);
+		// initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(135f));
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
-		avatar.setLocalRotation(initialRotation);
+		// avatar.setLocalRotation(initialRotation);
 
 		candle = new GameObject(GameObject.root(), candS, candT);
 		initialTranslation = (new Matrix4f()).translation(5,.4f,0);
@@ -144,12 +147,12 @@ public class MyGame extends VariableFrameRateGame
 		candle.setLocalTranslation(initialTranslation);
 		candle.setLocalScale(initialScale);
 		
-		cub = new GameObject(GameObject.root(), cubS, cubePattern);
-		initialTranslation = (new Matrix4f()).translation(20,1,-10);
-		initialScale = (new Matrix4f()).scaling(1f);
-		cub.setLocalTranslation(initialTranslation);
-		cub.setLocalScale(initialScale);
-		prizes.add(cub);
+		// shadow = new GameObject(GameObject.root(), shadowS, shadowT);
+		// initialTranslation = (new Matrix4f()).translation(20,1,-10);
+		// initialScale = (new Matrix4f()).scaling(1f);
+		// shadow.setLocalTranslation(initialTranslation);
+		// shadow.setLocalScale(initialScale);
+		// prizes.add(shadow);
 
 		sph = new GameObject(GameObject.root(), sphS);
 		initialTranslation = (new Matrix4f()).translation(-25,1,-5);
@@ -164,45 +167,45 @@ public class MyGame extends VariableFrameRateGame
 		prizes.add(tor);
 
 		//build pyramid
-		pyr = new GameObject(GameObject.root(), pyrS);
-		initialTranslation = (new Matrix4f()).translation(0,2,0);
-		pyr.setLocalTranslation(initialRotation);
-		initialScale = (new Matrix4f()).scaling(2f);
-		pyr.setLocalScale(initialScale);
-		pyr.getRenderStates().hasLighting(true);
+		// pyr = new GameObject(GameObject.root(), pyrS);
+		// initialTranslation = (new Matrix4f()).translation(0,2,0);
+		// pyr.setLocalTranslation(initialRotation);
+		// initialScale = (new Matrix4f()).scaling(2f);
+		// pyr.setLocalScale(initialScale);
+		// pyr.getRenderStates().hasLighting(true);
 
-		cubM = new GameObject(GameObject.root(), cubS, cubePattern);
-		initialTranslation = (new Matrix4f()).translation(.3f,2,.6f);
-		cubM.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(.06f);
-		cubM.setLocalScale(initialScale);
-		cubM.getRenderStates().setColor(new Vector3f(1,1,1));
-		cubM.setParent(pyr);
-		cubM.propagateTranslation(true);
-		cubM.propagateRotation(false);
-		cubM.getRenderStates().disableRendering();
+		// cubM = new GameObject(GameObject.root(), shadowS, shadowT);
+		// initialTranslation = (new Matrix4f()).translation(.3f,2,.6f);
+		// cubM.setLocalTranslation(initialTranslation);
+		// initialScale = (new Matrix4f()).scaling(.06f);
+		// cubM.setLocalScale(initialScale);
+		// cubM.getRenderStates().setColor(new Vector3f(1,1,1));
+		// cubM.setParent(pyr);
+		// cubM.propagateTranslation(true);
+		// cubM.propagateRotation(false);
+		// cubM.getRenderStates().disableRendering();
 
-		sphM = new GameObject(GameObject.root(), sphS);
-		initialTranslation = (new Matrix4f()).translation(-.6f,2,0);
-		sphM.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(.07f);
-		sphM.setLocalScale(initialScale);
-		sphM.getRenderStates().setColor(new Vector3f(1,1,1));
-		sphM.setParent(pyr);
-		sphM.propagateTranslation(true);
-		sphM.propagateRotation(false);
-		sphM.getRenderStates().disableRendering();
+		// sphM = new GameObject(GameObject.root(), sphS);
+		// initialTranslation = (new Matrix4f()).translation(-.6f,2,0);
+		// sphM.setLocalTranslation(initialTranslation);
+		// initialScale = (new Matrix4f()).scaling(.07f);
+		// sphM.setLocalScale(initialScale);
+		// sphM.getRenderStates().setColor(new Vector3f(1,1,1));
+		// sphM.setParent(pyr);
+		// sphM.propagateTranslation(true);
+		// sphM.propagateRotation(false);
+		// sphM.getRenderStates().disableRendering();
 
-		torM = new GameObject(GameObject.root(), torS);
-		initialTranslation = (new Matrix4f()).translation(.3f,2,-.6f);
-		torM.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(.1f);
-		torM.setLocalScale(initialScale);
-		torM.getRenderStates().setColor(new Vector3f(1,1,1));
-		torM.setParent(pyr);
-		torM.propagateTranslation(true);
-		torM.propagateRotation(false);
-		torM.getRenderStates().disableRendering();
+		// torM = new GameObject(GameObject.root(), torS);
+		// initialTranslation = (new Matrix4f()).translation(.3f,2,-.6f);
+		// torM.setLocalTranslation(initialTranslation);
+		// initialScale = (new Matrix4f()).scaling(.1f);
+		// torM.setLocalScale(initialScale);
+		// torM.getRenderStates().setColor(new Vector3f(1,1,1));
+		// torM.setParent(pyr);
+		// torM.propagateTranslation(true);
+		// torM.propagateRotation(false);
+		// torM.getRenderStates().disableRendering();
 
 		// ground = new GameObject(GameObject.root(), groundS);
 		// initialTranslation = (new Matrix4f()).translation(0,0,0);
@@ -257,17 +260,17 @@ public class MyGame extends VariableFrameRateGame
 		SoundType.SOUND_EFFECT, 500, true);
 		hereSound.initialize(audioMgr);
 		oceanSound.initialize(audioMgr);
+		setEarParameters();
 		hereSound.setMaxDistance(10.0f);
 		hereSound.setMinDistance(0.5f);
 		hereSound.setRollOff(5.0f);
-		oceanSound.setMaxDistance(50.0f);
+		oceanSound.setMaxDistance(20.0f);
 		oceanSound.setMinDistance(0.5f);
-		oceanSound.setRollOff(5.0f);
+		oceanSound.setRollOff(10.0f);
 		hereSound.setLocation(avatar.getWorldLocation());
-		oceanSound.setLocation(pyr.getWorldLocation());
-		setEarParameters();
-		// hereSound.play();
 		oceanSound.play();
+		// hereSound.play();
+		
 	}
 
 	public void setEarParameters() {
@@ -370,6 +373,8 @@ public class MyGame extends VariableFrameRateGame
 
 		ArrowToggle toggle = new ArrowToggle(x, y, z);
 
+		Quit quit = new Quit(this);
+
 		setHeldButtonToGamepad(Axis.Y, moveController);
 		setHeldButtonToGamepad(Axis.X, YawController);
 
@@ -384,6 +389,7 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
 		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
 		setPressedActionToKeyboard(Key.SPACE, toggle);
+		setPressedActionToKeyboard(Key.ESCAPE, quit);
 
 		initAudio();
 		setupNetworking();
@@ -418,7 +424,7 @@ public class MyGame extends VariableFrameRateGame
 		// update inputs and camera
 		im.update((float)elapsTime);
 
-		checkPrizeCollision();
+		//checkPrizeCollision();
 
 		double spinSpeed = 30;
 		float spinDistance = 1;
@@ -426,49 +432,54 @@ public class MyGame extends VariableFrameRateGame
 		//double spinSpeed = (Double) (jsEngine.get("spinSpeed"));
 		//float spinDistance = ((Double) jsEngine.get("spinDistance")).floatValue();
 
-		for (int i = 0; i < collectedPrizes.size(); i++)
-			{
-				activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
-				spinSpeed += 20;
-				spinDistance += .5f;
-			}
+		// for (int i = 0; i < collectedPrizes.size(); i++)
+		// 	{
+		// 		activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
+		// 		spinSpeed += 20;
+		// 		spinDistance += .5f;
+		// 	}
 
 		orbitController.updateCameraPosition();
 
 		// hereSound.setLocation(avatar.getWorldLocation());
-		oceanSound.setLocation(pyr.getWorldLocation());
+		try {
+			oceanSound.setLocation(gm.getGhostNPC(0).getWorldLocation());
+		} catch (Exception e){}
+		
 		setEarParameters();
+
+		avatarA.updateAnimation();
 
 		processNetworking((float)elapsTime);
 		
 	}
 
-	private void checkPrizeCollision()
-	{
-		for (int i = 0; i < prizes.size(); i++)
-		{
-			if (avatar.getWorldLocation().distance(prizes.get(i).getLocalLocation()) <= 3f)
-			{
-				rc.addTarget(prizes.get(i));
-				fc.addTarget(prizes.get(i));
-				GameObject mini = new GameObject(GameObject.root());
+	// private void checkPrizeCollision()
+	// {
+	// 	for (int i = 0; i < prizes.size(); i++)
+	// 	{
+	// 		if (avatar.getWorldLocation().distance(prizes.get(i).getLocalLocation()) <= 3f)
+	// 		{
+	// 			rc.addTarget(prizes.get(i));
+	// 			fc.addTarget(prizes.get(i));
+	// 			GameObject mini = new GameObject(GameObject.root());
 
-				if (prizes.get(i) == cub)
-					mini = cubM;
-				else if (prizes.get(i) == tor)
-					mini = torM;
-				else if (prizes.get(i) == sph)
-					mini = sphM;
+	// 			if (prizes.get(i) == shadow)
+	// 				mini = cubM;
+	// 			else if (prizes.get(i) == tor)
+	// 				mini = torM;
+	// 			else if (prizes.get(i) == sph)
+	// 				mini = sphM;
 
-				collectedPrizes.add(mini);
-				mini.getRenderStates().enableRendering();
+	// 			collectedPrizes.add(mini);
+	// 			mini.getRenderStates().enableRendering();
 				
-				prizes.remove(i);
-				if (prizes.size() == 0)
-					rc.addTarget(pyr);
-			}
-		}
-	}
+	// 			prizes.remove(i);
+	// 			if (prizes.size() == 0)
+	// 				rc.addTarget(pyr);
+	// 		}
+	// 	}
+	// }
 
 	private void activatePrize(GameObject prize, double speed, float location)
 	{
@@ -488,6 +499,9 @@ public class MyGame extends VariableFrameRateGame
 		im.associateActionWithAllKeyboards(
 			key, action, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 	}
+	private void setPressedandReleasedActiontoKeyboard(net.java.games.input.Component.Identifier.Key key, IAction action) {
+		im.associateActionWithAllKeyboards(key, action, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+	}
 	private void setHeldButtonToGamepad(net.java.games.input.Component.Identifier button, IAction action)
 	{
 		im.associateActionWithAllGamepads(
@@ -502,13 +516,21 @@ public class MyGame extends VariableFrameRateGame
 	public Engine getEngine() { return engine; }
 	public GameObject getAvatar() { return avatar; }
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
-	
+	public ObjShape getNPCShape() { return shadowS; }
+	public TextureImage getNPCTexture() { return shadowT; }
+
 	// ------------Networking-----------------------
 
 	public ObjShape getGhostShape() { return ghostS; }
 	public TextureImage getGhostTexture() { return ghostT; }
 	public GhostManager getGhostManager() { return gm; }
 	public ProtocolClient getProtClient() { return protClient; } 
+	public boolean getIsClientConnected() { return isClientConnected; }
+
+	public void handleAvatarAnimation(String a) { 
+		if (avatarA.getCurAnimation() == null)
+		avatarA.playAnimation(a, .5f, AnimatedShape.EndType.LOOP, 0); 
+	}
 
 	private void setupNetworking(){
 		isClientConnected = false;
@@ -524,6 +546,7 @@ public class MyGame extends VariableFrameRateGame
 		} else {
 			System.out.println("sending join message to protocol host");
 			protClient.sendJoinMessage();
+			protClient.sendNeedNPCMessage();
 		}
 	}
 
@@ -536,12 +559,11 @@ public class MyGame extends VariableFrameRateGame
 	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 
-	private class SendCloseConnectionPacketAction extends AbstractInputAction{
-		@Override
-		public void performAction(float time, net.java.games.input.Event evt){
-			if (protClient != null && isClientConnected == true){
-				protClient.sendByeMessage();
-			}
-		}
+	public void killGame(){
+		if (protClient != null && isClientConnected){
+            protClient.sendByeMessage();
+        }
+		shutdown();
+		System.exit(0);
 	}
 }

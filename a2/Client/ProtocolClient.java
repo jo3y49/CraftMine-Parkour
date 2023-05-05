@@ -1,21 +1,17 @@
 package a2.Client;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Iterator;
 import java.util.UUID;
-import java.util.Vector;
 import org.joml.*;
-
 import a2.MyGame;
-import tage.*;
 import tage.networking.client.GameConnectionClient;
 
 public class ProtocolClient extends GameConnectionClient
 {
 	private MyGame game;
 	private GhostManager ghostManager;
+	private GhostNPC ghostNPC;
 	private UUID id;
 	
 	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
@@ -106,7 +102,51 @@ public class ProtocolClient extends GameConnectionClient
 					Float.parseFloat(messageTokens[4]));
 				
 				ghostManager.updateGhostAvatar(ghostID, ghostPosition);
-	}	}	}
+			}	
+
+			//----------NPC--------------
+
+			// Handle createNPC message
+			// Format: (createNPC,id,x,y,z)
+
+			if (messageTokens[0].compareTo("createNPC") == 0)
+			{ // create a new ghost NPC
+			// Parse out the position
+			int id = Integer.parseInt(messageTokens[1]);
+			Vector3f ghostPosition = new Vector3f(
+			Float.parseFloat(messageTokens[2]),
+			Float.parseFloat(messageTokens[3]),
+			Float.parseFloat(messageTokens[4]));
+			try
+			{ ghostManager.createGhostNPC(id, ghostPosition);
+			} catch (IOException e) { e.printStackTrace(); } // error creating ghost avatar
+			}
+			// Handle moneNPC message
+			// Format: (monveNPC,id, x,y,z,distance )
+
+			if (messageTokens[0].compareTo("moveNPC") == 0)
+			{ // moves npc and checks if near avatar
+				// Parse out the position
+				int id = Integer.parseInt(messageTokens[1]);
+				Vector3f ghostPosition = new Vector3f(
+				Float.parseFloat(messageTokens[2]),
+				Float.parseFloat(messageTokens[3]),
+				Float.parseFloat(messageTokens[4]));
+
+				double criteria = Double.parseDouble(messageTokens[5]);
+
+				Double size = Double.parseDouble(messageTokens[6]);
+
+				ghostManager.updateGhostNPC(id, ghostPosition, size);
+
+				if (ghostManager.checkNear(ghostPosition, criteria)){
+					sendNearMessage();
+				} else {
+					sendFarMessage();
+				}
+			}
+		}
+	}	
 	
 	// The initial message from the game client requesting to join the 
 	// server. localId is a unique identifier for the client. Recommend 
@@ -146,6 +186,30 @@ public class ProtocolClient extends GameConnectionClient
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
+
+	public void sendNearMessage()
+	{ 	try
+		{
+			System.out.println("avatar near npc");
+			String message = "isnear";
+
+			message += "," + game.getAvatar().getWorldLocation().x();
+			message += "," + game.getAvatar().getWorldLocation().y();
+			message += "," + game.getAvatar().getWorldLocation().z();
+
+			sendPacket(message);
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	public void sendFarMessage() {
+		try {
+			sendPacket("isnotnear");
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
 	
 	// Informs the server of the local avatar's position. The server then 
 	// forwards this message to the client with the ID value matching remoteId. 
@@ -179,4 +243,17 @@ public class ProtocolClient extends GameConnectionClient
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
+
+	// ------------- GHOST NPC SECTION --------------
+
+	public void sendNeedNPCMessage() {
+		{	try 
+			{	String message = new String("needNPC");
+				
+				sendPacket(message);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

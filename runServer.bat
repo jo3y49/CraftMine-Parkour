@@ -1,1 +1,1 @@
-java a2/Server/NetworkingServer 6010 UDP
+java a2/Server/NetworkingServer 6010
