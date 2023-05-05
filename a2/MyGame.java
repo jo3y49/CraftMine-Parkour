@@ -243,34 +243,34 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public void initAudio() {
-		// AudioResource resource1, resource2;
-		// audioMgr = AudioManagerFactory.createAudioManager(
-		// "tage.audio.joal.JOALAudioManager");
-		// if (!audioMgr.initialize())
-		// { System.out.println("Audio Manager failed to initialize!");
-		// return;
-		// }
-		// resource1 = audioMgr.createAudioResource(
-		// "assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
-		// resource2 = audioMgr.createAudioResource(
-		// "assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
-		// hereSound = new Sound(resource1,
-		// SoundType.SOUND_EFFECT, 100, true);
-		// oceanSound = new Sound(resource2,
-		// SoundType.SOUND_EFFECT, 500, true);
-		// hereSound.initialize(audioMgr);
-		// oceanSound.initialize(audioMgr);
-		// hereSound.setMaxDistance(10.0f);
-		// hereSound.setMinDistance(0.5f);
-		// hereSound.setRollOff(5.0f);
-		// oceanSound.setMaxDistance(50.0f);
-		// oceanSound.setMinDistance(0.5f);
-		// oceanSound.setRollOff(5.0f);
-		// hereSound.setLocation(avatar.getWorldLocation());
-		// oceanSound.setLocation(pyr.getWorldLocation());
-		// setEarParameters();
-		// // hereSound.play();
-		// oceanSound.play();
+		AudioResource resource1, resource2;
+		audioMgr = AudioManagerFactory.createAudioManager(
+		"tage.audio.joal.JOALAudioManager");
+		if (!audioMgr.initialize())
+		{ System.out.println("Audio Manager failed to initialize!");
+		return;
+		}
+		resource1 = audioMgr.createAudioResource(
+		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
+		resource2 = audioMgr.createAudioResource(
+		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
+		hereSound = new Sound(resource1,
+		SoundType.SOUND_EFFECT, 100, true);
+		oceanSound = new Sound(resource2,
+		SoundType.SOUND_EFFECT, 500, true);
+		hereSound.initialize(audioMgr);
+		oceanSound.initialize(audioMgr);
+		setEarParameters();
+		hereSound.setMaxDistance(10.0f);
+		hereSound.setMinDistance(0.5f);
+		hereSound.setRollOff(5.0f);
+		oceanSound.setMaxDistance(20.0f);
+		oceanSound.setMinDistance(0.5f);
+		oceanSound.setRollOff(10.0f);
+		hereSound.setLocation(avatar.getWorldLocation());
+		oceanSound.play();
+		// hereSound.play();
+		
 	}
 
 	public void setEarParameters() {
@@ -442,8 +442,11 @@ public class MyGame extends VariableFrameRateGame
 		orbitController.updateCameraPosition();
 
 		// hereSound.setLocation(avatar.getWorldLocation());
-		// oceanSound.setLocation(pyr.getWorldLocation());
-		// setEarParameters();
+		try {
+			oceanSound.setLocation(gm.getGhostNPC(0).getWorldLocation());
+		} catch (Exception e){}
+		
+		setEarParameters();
 
 		avatarA.updateAnimation();
 
@@ -496,6 +499,9 @@ public class MyGame extends VariableFrameRateGame
 		im.associateActionWithAllKeyboards(
 			key, action, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 	}
+	private void setPressedandReleasedActiontoKeyboard(net.java.games.input.Component.Identifier.Key key, IAction action) {
+		im.associateActionWithAllKeyboards(key, action, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+	}
 	private void setHeldButtonToGamepad(net.java.games.input.Component.Identifier button, IAction action)
 	{
 		im.associateActionWithAllGamepads(
@@ -520,8 +526,9 @@ public class MyGame extends VariableFrameRateGame
 	public GhostManager getGhostManager() { return gm; }
 	public ProtocolClient getProtClient() { return protClient; } 
 	public boolean getIsClientConnected() { return isClientConnected; }
+
 	public void handleAvatarAnimation(String a) { 
-		avatarA.stopAnimation();
+		if (avatarA.getCurAnimation() == null)
 		avatarA.playAnimation(a, .5f, AnimatedShape.EndType.LOOP, 0); 
 	}
 

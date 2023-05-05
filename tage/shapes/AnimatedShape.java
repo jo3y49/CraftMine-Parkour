@@ -664,4 +664,5 @@ public final class AnimatedShape extends ObjShape
 	public tage.rml.Matrix3[] getPoseSkinMatricesIT() { return curSkinMatricesIT; }
 	/** for engine use only. */
 	public int getBoneCount() { return boneCount; }
+	public Animation getCurAnimation() { return curAnimation; }
 }

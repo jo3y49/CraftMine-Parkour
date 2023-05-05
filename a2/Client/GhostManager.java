@@ -82,4 +82,8 @@ public class GhostManager
 	public boolean checkNear(Vector3f p, double criteria) {
         return game.getPlayerPosition().distance(p) < criteria;
     }
+
+	public GhostNPC getGhostNPC(int id) {
+		return ghostNPCs.get(id);
+	}
 }
