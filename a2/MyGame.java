@@ -405,12 +405,6 @@ public class MyGame extends VariableFrameRateGame
 		terrP.setBounciness(1.0f);
 		terr.setPhysicsObject(terrP);
 
-		translation = new Matrix4f(avatar.getLocalRotation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		float[] size = {1,1,1};
-		avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), 
-		mass, tempTransform, size);
-		avatar.setPhysicsObject(avatarP);
 
 		StraightMovementController moveController = new StraightMovementController(this, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
 		StraightMovement moveForward = new StraightMovement(this, true, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
@@ -429,6 +423,8 @@ public class MyGame extends VariableFrameRateGame
 
 		ArrowToggle toggle = new ArrowToggle(x, y, z);
 
+		Jump jump = new Jump(this);
+
 		setHeldButtonToGamepad(Axis.Y, moveController);
 		setHeldButtonToGamepad(Axis.X, YawController);
 
@@ -442,7 +438,7 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.DOWN, moveCamDown);
 		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
 		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
-		setPressedActionToKeyboard(Key.SPACE, toggle);
+		setPressedActionToKeyboard(Key.SPACE, jump);
 
 		initAudio();
 		setupNetworking();
@@ -473,7 +469,7 @@ public class MyGame extends VariableFrameRateGame
 					mat2.set(3,1,mat.m31());
 					mat2.set(3,2,mat.m32());
 					go.setLocalTranslation(mat2);
-				} 		
+				}
 			} 	
 		}
 
@@ -604,6 +600,20 @@ public class MyGame extends VariableFrameRateGame
 	public Engine getEngine() { return engine; }
 	public GameObject getAvatar() { return avatar; }
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
+	public void avatarPhysics() { 
+		float mass = 1.0f;
+		float up[ ] = {0,1,0};
+		double[ ] tempTransform;
+
+		avatar.setLocalLocation(avatar.getLocalLocation().add(0, .5f, 0));
+		Matrix4f translation = new Matrix4f(avatar.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		float[] size = {1,1,1};
+		avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), 
+		mass, tempTransform, size);
+		avatar.setPhysicsObject(avatarP); 
+		avatarP.applyForce(0, 100, 0, 0, 0, 0);
+	}
 	
 	// ------------Networking-----------------------
 
