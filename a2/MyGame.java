@@ -644,11 +644,22 @@ public class MyGame extends VariableFrameRateGame
 
 		AxisAngle4f aa = new AxisAngle4f();
 		Matrix4f transform = new Matrix4f();
+		//System.out.println("avatarP transform:" + toFloatArray(avatarP.getTransform()));
 		transform.set(toFloatArray(avatarP.getTransform()));
+		//System.out.println("transform:" + transform);
+
+
 		transform.getRotation(aa);
+		//System.out.println("aa:" + aa);
+
+		//aa.set(rs, aa.x, aa.y, aa.z);
+
 		Matrix4f rotMatrix = new Matrix4f();
-		rotMatrix.rotation(aa);
-		tempTransform = toDoubleArray(transform.get(vals));
+		rotMatrix.set(toFloatArray(avatarP.getTransform()));
+		//System.out.println("before:" + rotMatrix);
+		//rotMatrix.rotate(aa);
+		//System.out.println("after:" +rotMatrix);
+		tempTransform = toDoubleArray(rotMatrix.get(vals));
 		avatarP.setTransform(tempTransform);
 
 	}
