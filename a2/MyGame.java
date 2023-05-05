@@ -406,6 +406,14 @@ public class MyGame extends VariableFrameRateGame
 		terr.setPhysicsObject(terrP);
 
 
+		translation = new Matrix4f(avatar.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		float[] size = {1,2,1};
+		avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), 
+		mass, tempTransform, size);
+		avatar.setPhysicsObject(avatarP); 
+
+
 		StraightMovementController moveController = new StraightMovementController(this, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
 		StraightMovement moveForward = new StraightMovement(this, true, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
 		StraightMovement moveBackward = new StraightMovement(this, false,  ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
@@ -600,19 +608,9 @@ public class MyGame extends VariableFrameRateGame
 	public Engine getEngine() { return engine; }
 	public GameObject getAvatar() { return avatar; }
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
-	public void avatarPhysics() { 
-		float mass = 1.0f;
-		float up[ ] = {0,1,0};
-		double[ ] tempTransform;
-
-		avatar.setLocalLocation(avatar.getLocalLocation().add(0, .5f, 0));
-		Matrix4f translation = new Matrix4f(avatar.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		float[] size = {1,1,1};
-		avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), 
-		mass, tempTransform, size);
-		avatar.setPhysicsObject(avatarP); 
-		avatarP.applyForce(0, 100, 0, 0, 0, 0);
+	public void avatarPhysics(float movement) { 
+		
+		avatarP.applyForce(0, 0, movement*100, 0, 0, 0);
 	}
 	
 	// ------------Networking-----------------------

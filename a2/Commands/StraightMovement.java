@@ -26,7 +26,8 @@ public class StraightMovement extends AbstractInputAction
         else    
             moveSpeed = game.getFrameTime()*-moveSpeedWeight;
 
-        av.straightMovement(moveSpeed); 
+        // av.straightMovement(moveSpeed); 
+        game.avatarPhysics(moveSpeed*10);
         game.getProtClient().sendMoveMessage(av.getWorldLocation());
     }
 }
