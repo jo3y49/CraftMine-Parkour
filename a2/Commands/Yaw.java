@@ -18,6 +18,8 @@ public class Yaw extends AbstractInputAction
     {
         rotationSpeed = game.getFrameTime() * rotationSpeedWeight;
         
-        game.getAvatar().yaw(left ? rotationSpeed : -rotationSpeed);
+        //game.getAvatar().yaw(left ? rotationSpeed : -rotationSpeed);
+
+        game.rotateAvatarPhysicsObject(left ? rotationSpeed : -rotationSpeed);
     }
 }

@@ -380,8 +380,8 @@ public class MyGame extends VariableFrameRateGame
 		float avatarSize[] = {2.0f, 1.0f, 3.0f};
 		translation = new Matrix4f(avatar.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
-		//avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, avatarSize);
-		avatarP = physicsEngine.addCapsuleObject(physicsEngine.nextUID(), mass, tempTransform, 1, 1);
+		avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, avatarSize);
+		//avatarP = physicsEngine.addCapsuleObject(physicsEngine.nextUID(), mass, tempTransform, 1, 1);
 		avatarP.setBounciness(0.0f);
 		avatarP.setFriction(1);
 		//avatarP.setTransform(tempTransform);
@@ -466,9 +466,25 @@ public class MyGame extends VariableFrameRateGame
 		// avatar follows terrain map
 		Vector3f loc = avatar.getWorldLocation();
 		float height = terr.getHeight(loc.x(), loc.z());
-		avatar.setLocalLocation(loc.x(), loc.y() + height, loc.z());
-		updateAvatarPhysicsObject();
-		System.out.println("physics avatar location:" + avatarP.getTransform().toString());
+
+		double[ ] tempTransform;
+		Matrix4f translation = new Matrix4f(avatar.getLocalTranslation());
+
+		if(avatar.getLocalTranslation().get(3, 1) < height + 0.45f)
+		{
+			translation.set(3, 0, height);
+			//avatar.setLocalLocation(avatar.getLocalTranslation().get(3, 0), height, avatar.getLocalTranslation().get(3, 2));
+			System.out.println("worked");
+		}
+
+
+		// System.out.println("important one:" + avatar.getLocalTranslation().get(3, 0));
+		tempTransform = toDoubleArray(translation.get(vals));
+		//avatarP.setTransform(tempTransform);
+
+
+		//avatar.setLocalLocation(loc.x(), loc.y() + height, loc.z());
+
 
 		// build and set HUD
 		String collectedStr = Integer.toString(collectedPrizes.size());
@@ -604,12 +620,37 @@ public class MyGame extends VariableFrameRateGame
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
 	
 
-	public void updateAvatarPhysicsObject(){
+	public void updateAvatarPhysicsObject(float ms){
 		double[ ] tempTransform;
 		Matrix4f translation = new Matrix4f(avatar.getLocalTranslation());
+		translation.set(3, 0, translation.get(3, 0) + ms);
+		System.out.println(translation);
 		tempTransform = toDoubleArray(translation.get(vals));
 		avatarP.setTransform(tempTransform);
+
+
+
 		
+	}
+
+	public void rotateAvatarPhysicsObject(float rs){
+		double[ ] tempTransform;
+		// Matrix4f translation = new Matrix4f(avatar.getLocalRotation());
+		// translation.set(3, 0, translation.get(3, 0) + rs);
+		// tempTransform = toDoubleArray(translation.get(vals));
+		// avatarP.setTransform(tempTransform);
+
+
+
+		AxisAngle4f aa = new AxisAngle4f();
+		Matrix4f transform = new Matrix4f();
+		transform.set(toFloatArray(avatarP.getTransform()));
+		transform.getRotation(aa);
+		Matrix4f rotMatrix = new Matrix4f();
+		rotMatrix.rotation(aa);
+		tempTransform = toDoubleArray(transform.get(vals));
+		avatarP.setTransform(tempTransform);
+
 	}
 
 	// ----------------physics---------------------
