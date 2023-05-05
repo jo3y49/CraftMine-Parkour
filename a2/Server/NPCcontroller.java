@@ -1,15 +1,10 @@
 package a2.Server;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.UUID;
-
 import org.joml.Random;
 import org.joml.Vector3f;
 
 import a2.Server.AIAction.*;
 import tage.ai.behaviortrees.*;
-import tage.networking.server.GameConnectionServer;
 
 public class NPCcontroller{
     private NPC npc;
@@ -68,9 +63,6 @@ public class NPCcontroller{
         bt.insert(10, new GetBig(npc));
         bt.insert(20, new OneSecPassed(this, npc, false));
         bt.insert(20, new GetSmall(npc));
-        //bt.insert(20, new GetBig(npc));
-        
-
     }
 
     public void handleNear(Vector3f playerLocation) {

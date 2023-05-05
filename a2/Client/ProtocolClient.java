@@ -1,18 +1,10 @@
 package a2.Client;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Iterator;
 import java.util.UUID;
-import java.util.Vector;
-
-import javax.swing.text.Position;
-
 import org.joml.*;
-
 import a2.MyGame;
-import tage.*;
 import tage.networking.client.GameConnectionClient;
 
 public class ProtocolClient extends GameConnectionClient

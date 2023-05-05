@@ -1,8 +1,6 @@
 package a2.Client;
 
-import java.awt.Color;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
@@ -17,8 +15,8 @@ public class GhostManager
 	private Vector<GhostAvatar> ghostAvatars = new Vector<GhostAvatar>();
 	private Vector<GhostNPC> ghostNPCs = new Vector<GhostNPC>();
 
-	public GhostManager(VariableFrameRateGame vfrg)
-	{	game = (MyGame)vfrg;
+	public GhostManager(VariableFrameRateGame game)
+	{	this.game = (MyGame)game;
 	}
 	
 	public void createGhostAvatar(UUID id, Vector3f position) throws IOException
