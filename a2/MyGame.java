@@ -6,6 +6,11 @@ import tage.shapes.*;
 import tage.input.*;
 import tage.input.action.*;
 import tage.nodeControllers.*;
+import tage.physics.PhysicsEngine;
+import tage.physics.PhysicsEngineFactory;
+import tage.physics.PhysicsObject;
+import tage.physics.JBullet.JBulletPhysicsObject;
+import tage.physics.JBullet.*;
 import tage.networking.IGameConnection.ProtocolType;
 import net.java.games.input.Component.Identifier.*;
 import java.lang.Math;
@@ -37,7 +42,7 @@ public class MyGame extends VariableFrameRateGame
 	private CameraOrbit3D orbitController;
 	private Light light1;
 
-	private GameObject avatar, candle, cub, cubM, tor, torM, sph, sphM, pyr,  x, y, z;
+	private GameObject avatar, candle, cub, cubM, tor, torM, sph, sphM, pyr,  x, y, z, ball1, ball2;
 	private ObjShape dolS, ghostS, candS, cubS, torS, pyrS, sphS, linxS, linyS, linzS;
 	private TextureImage dolT, ghostT, candT, cubePattern;
 
@@ -54,6 +59,11 @@ public class MyGame extends VariableFrameRateGame
 	private File scriptFile1;
 	private long fileLastModifiedTime = 0;
 	ScriptEngine jsEngine;
+
+	private PhysicsEngine physicsEngine;
+	private PhysicsObject ball1P, ball2P, terrP, avatarP;
+	private boolean running = true;
+	private float vals[] = new float[16];
 
 	//server variables
 	private String serverAddress;
@@ -221,6 +231,15 @@ public class MyGame extends VariableFrameRateGame
 		(y.getRenderStates()).disableRendering();
 		(z.getRenderStates()).disableRendering();
 
+		// -------------- adding two Spheres -----------------
+		ball1 = new GameObject(GameObject.root(), sphS, candT);
+		ball1.setLocalTranslation((new Matrix4f()).translation(0, 4, 0));
+		ball1.setLocalScale((new Matrix4f()).scaling(0.75f));
+
+		ball2 = new GameObject(GameObject.root(), sphS, candT);
+		ball2.setLocalTranslation((new Matrix4f()).translation(-0.5f, 1, 0));
+		ball2.setLocalScale((new Matrix4f()).scaling(0.75f));
+
 
 		// build terrain object
 		terr = new GameObject(GameObject.root(), terrS, grass);
@@ -353,6 +372,46 @@ public class MyGame extends VariableFrameRateGame
 
 		orbitController = new CameraOrbit3D(cM, avatar, terr, engine);
 
+		// --- initialize physics system ---
+		String engine = "tage.physics.JBullet.JBulletPhysicsEngine";
+		float[] gravity = {0f, -5f, 0f};
+		physicsEngine = PhysicsEngineFactory.createPhysicsEngine(engine);
+		physicsEngine.initSystem();
+		physicsEngine.setGravity(gravity);
+
+		// --- create physics world ---
+		float mass = 1.0f;
+		float up[ ] = {0,1,0};
+		double[ ] tempTransform;
+
+		Matrix4f translation = new Matrix4f(ball1.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		ball1P = physicsEngine.addSphereObject(physicsEngine.nextUID(),
+		mass, tempTransform, 0.75f);
+		ball1P.setBounciness(1.0f);
+		ball1.setPhysicsObject(ball1P);
+
+		translation = new Matrix4f(ball2.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		ball2P = physicsEngine.addSphereObject(physicsEngine.nextUID(),
+		mass, tempTransform, 0.75f);
+		ball2P.setBounciness(1.0f);
+		ball2.setPhysicsObject(ball2P);
+
+		translation = new Matrix4f(terr.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		terrP = physicsEngine.addStaticPlaneObject(
+		physicsEngine.nextUID(), tempTransform, up, 0.0f);
+		terrP.setBounciness(1.0f);
+		terr.setPhysicsObject(terrP);
+
+		translation = new Matrix4f(avatar.getLocalRotation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		float[] size = {1,1,1};
+		avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), 
+		mass, tempTransform, size);
+		avatar.setPhysicsObject(avatarP);
+
 		StraightMovementController moveController = new StraightMovementController(this, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
 		StraightMovement moveForward = new StraightMovement(this, true, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
 		StraightMovement moveBackward = new StraightMovement(this, false,  ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
@@ -401,6 +460,23 @@ public class MyGame extends VariableFrameRateGame
 		float height = terr.getHeight(loc.x(), loc.z());
 		avatar.setLocalLocation(loc.x(), height + 1, loc.z());
 
+		// update physics
+		if (running) {
+			Matrix4f mat = new Matrix4f();
+			Matrix4f mat2 = new Matrix4f().identity();
+			checkForCollisions();
+			physicsEngine.update((float)elapsTime);
+			for (GameObject go:engine.getSceneGraph().getGameObjects()) { 
+				if (go.getPhysicsObject() != null) {
+					mat.set(toFloatArray(go.getPhysicsObject().getTransform()));
+					mat2.set(3,0,mat.m30());
+					mat2.set(3,1,mat.m31());
+					mat2.set(3,2,mat.m32());
+					go.setLocalTranslation(mat2);
+				} 		
+			} 	
+		}
+
 		// build and set HUD
 		String collectedStr = Integer.toString(collectedPrizes.size());
 		String dispStr1 = "Collected Prizes = " + collectedStr;
@@ -436,11 +512,37 @@ public class MyGame extends VariableFrameRateGame
 		orbitController.updateCameraPosition();
 
 		// hereSound.setLocation(avatar.getWorldLocation());
-		oceanSound.setLocation(pyr.getWorldLocation());
-		setEarParameters();
+		//oceanSound.setLocation(pyr.getWorldLocation());
+		//setEarParameters();
 
 		processNetworking((float)elapsTime);
 		
+	}
+
+	private void checkForCollisions() {
+		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
+		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
+		com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
+		com.bulletphysics.dynamics.RigidBody object1, object2;
+		com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
+
+		dynamicsWorld = ((JBulletPhysicsEngine)physicsEngine).getDynamicsWorld();
+		dispatcher = dynamicsWorld.getDispatcher();
+		int manifoldCount = dispatcher.getNumManifolds();
+		for (int i=0; i<manifoldCount; i++) {
+			manifold = dispatcher.getManifoldByIndexInternal(i);
+			object1 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody0();
+			object2 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody1();
+			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
+			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
+			for (int j = 0; j < manifold.getNumContacts(); j++) {
+				contactPoint = manifold.getContactPoint(j);
+				if (contactPoint.getDistance() < 0.0f) {
+					System.out.println("---- hit between " + obj1 + " and " + obj2);
+					break;
+				} 
+			} 
+		} 
 	}
 
 	private void checkPrizeCollision()
@@ -535,6 +637,26 @@ public class MyGame extends VariableFrameRateGame
 
 	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
+
+	// ------------------ UTILITY FUNCTIONS used by physics
+	private float[] toFloatArray(double[] arr) {
+		if (arr == null) return null;
+		int n = arr.length;
+		float[] ret = new float[n];
+		for (int i = 0; i < n; i++) {
+			ret[i] = (float)arr[i];
+		}
+		return ret;
+	}
+	private double[] toDoubleArray(float[] arr) {
+		if (arr == null) return null;
+		int n = arr.length;
+		double[] ret = new double[n];
+		for (int i = 0; i < n; i++) {
+			ret[i] = (double)arr[i];
+		}
+		return ret;
+	}
 
 	private class SendCloseConnectionPacketAction extends AbstractInputAction{
 		@Override
