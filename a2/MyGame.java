@@ -136,7 +136,7 @@ public class MyGame extends VariableFrameRateGame
 		avatar = new GameObject(GameObject.root(), avatarA, dolT);
 		initialTranslation = (new Matrix4f()).translation(0,1,-10);
 		initialScale = (new Matrix4f()).scaling(.5f);
-		// initialRotation = (new Matrix4f()).rotationX((float)java.lang.Math.toRadians(90f));
+		// initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(135f));
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
 		// avatar.setLocalRotation(initialRotation);
