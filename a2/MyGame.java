@@ -42,7 +42,8 @@ public class MyGame extends VariableFrameRateGame
 	private Light light1;
 
 	private GameObject avatar, candle, shadow, cubM, tor, torM, sph, sphM, pyr,  x, y, z;
-	private ObjShape dolS, ghostS, candS, shadowS, torS, pyrS, sphS, linxS, linyS, linzS;
+	private AnimatedShape avatarA;
+	private ObjShape ghostS, candS, shadowS, torS, pyrS, sphS, linxS, linyS, linzS;
 	private TextureImage dolT, ghostT, candT, shadowT;
 
 	private ArrayList<GameObject> prizes = new ArrayList<>();
@@ -88,7 +89,8 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void loadShapes()
-	{	dolS = new ImportedModel("dolphinHighPoly.obj");
+	{	avatarA = new AnimatedShape("Player.rkm", "Player.rks");
+		avatarA.loadAnimation("walk", "Player.rka");
 		ghostS = new ImportedModel("Candle.obj");
 		candS = new ImportedModel("Candle.obj");
 		shadowS = new Cube();
@@ -131,13 +133,13 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialScale, initialRotation;
 
 		// build dolphin in the center of the window
-		avatar = new GameObject(GameObject.root(), dolS, dolT);
+		avatar = new GameObject(GameObject.root(), avatarA, dolT);
 		initialTranslation = (new Matrix4f()).translation(0,1,-10);
-		initialScale = (new Matrix4f()).scaling(3.0f);
-		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(135f));
+		initialScale = (new Matrix4f()).scaling(.5f);
+		// initialRotation = (new Matrix4f()).rotationX((float)java.lang.Math.toRadians(90f));
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
-		avatar.setLocalRotation(initialRotation);
+		// avatar.setLocalRotation(initialRotation);
 
 		candle = new GameObject(GameObject.root(), candS, candT);
 		initialTranslation = (new Matrix4f()).translation(5,.4f,0);
@@ -443,6 +445,8 @@ public class MyGame extends VariableFrameRateGame
 		// oceanSound.setLocation(pyr.getWorldLocation());
 		// setEarParameters();
 
+		avatarA.updateAnimation();
+
 		processNetworking((float)elapsTime);
 		
 	}
@@ -516,6 +520,10 @@ public class MyGame extends VariableFrameRateGame
 	public GhostManager getGhostManager() { return gm; }
 	public ProtocolClient getProtClient() { return protClient; } 
 	public boolean getIsClientConnected() { return isClientConnected; }
+	public void handleAvatarAnimation(String a) { 
+		avatarA.stopAnimation();
+		avatarA.playAnimation(a, .5f, AnimatedShape.EndType.LOOP, 0); 
+	}
 
 	private void setupNetworking(){
 		isClientConnected = false;
