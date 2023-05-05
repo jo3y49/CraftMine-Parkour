@@ -402,7 +402,7 @@ public class MyGame extends VariableFrameRateGame
 		tempTransform = toDoubleArray(translation.get(vals));
 		terrP = physicsEngine.addStaticPlaneObject(
 		physicsEngine.nextUID(), tempTransform, up, 0.0f);
-		terrP.setBounciness(1.0f);
+		terrP.setBounciness(0.0f);
 		terr.setPhysicsObject(terrP);
 
 
@@ -610,7 +610,11 @@ public class MyGame extends VariableFrameRateGame
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
 	public void avatarPhysics(float movement) { 
 		
-		avatarP.applyForce(0, 0, movement*100, 0, 0, 0);
+		avatarP.applyForce(0, 0, movement*500, 0, 0, 0);
+	}
+	public void avatarJump() {
+
+		avatarP.applyForce(0, 200, 0, 0, 0, 0);
 	}
 	
 	// ------------Networking-----------------------
