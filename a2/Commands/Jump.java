@@ -24,8 +24,10 @@ public class Jump  extends AbstractInputAction {
     public void performAction(float time, Event e) {
 
         GameObject ball = game.getBall();
+
             //apply force  0 8 0, upx upy, upz
-            physicsObj.applyForce(0, 8, 0, ball.getLocalLocation().x(), ball.getLocalLocation().y(), ball.getLocalLocation().z());
+            physicsObj.applyForce(0, 8, 0, ball.getLocalUpVector().x(),ball.getLocalUpVector().y(),ball.getLocalUpVector().z());
+            //physicsObj.applyForce(0, 8, 0, ball.getLocalLocation().x(), ball.getLocalLocation().y(), ball.getLocalLocation().z());
             System.out.println("test");
             
 
