@@ -70,10 +70,9 @@ public class GhostManager
 		}
 	}
 
-	public void updateGhostNPC(int id, Vector3f position, double size){
+	public void updateGhostNPC(int id, Vector3f position){
 		try {
 			ghostNPCs.get(id).setPosition(position);
-			ghostNPCs.get(id).setSize(size);
 		} catch (Exception e) {
 			
 		}
