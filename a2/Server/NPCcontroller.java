@@ -1,5 +1,7 @@
 package a2.Server;
 
+import java.util.Vector;
+
 import org.joml.Random;
 import org.joml.Vector3f;
 
@@ -7,7 +9,7 @@ import a2.Server.AIAction.*;
 import tage.ai.behaviortrees.*;
 
 public class NPCcontroller{
-    private NPC npc;
+    private Vector<NPC> npcs = new Vector<NPC>();
     private Random rn = new Random();
     private BehaviorTree bt = new BehaviorTree(BTCompositeType.SELECTOR);
     private boolean nearFlag = false;
@@ -16,7 +18,9 @@ public class NPCcontroller{
     private double criteria = 8;
 
     public void updateNPCs(){
-        npc.updateLocation();
+        for (int i = 0; i < npcs.size(); i++) {
+            npcs.get(i).updateLocation();
+        }
     }
 
     public void start(GameServer s){
@@ -26,14 +30,14 @@ public class NPCcontroller{
         lastTickUpdateTime = tickStartTime;
         server = s;
         setupNPCs();
-        setupBehaviorTree();
         npcLoop();
     }
 
     public void setupNPCs(){
-        npc = new NPC();
-        npc.randomizeLocation(rn.nextInt(40), rn.nextInt(40));
-
+        npcs.add(new NPC(0, new Vector3f(0, 0, 0)));
+        npcs.add(new NPC(1, new Vector3f(0,0,-10)));
+        setupBehaviorTree(npcs.get(0));
+        setupBehaviorTree(npcs.get(1));
     }
 
     public void npcLoop(){
@@ -44,7 +48,7 @@ public class NPCcontroller{
 
             if(elapsedTickMillisecs >= 25f){
                 lastTickUpdateTime = currentTime;
-                npc.updateLocation();
+                updateNPCs();
                 server.sendNPCinfo();
             }
             if (elapsedThinkMillisecs >= 250f){
@@ -55,7 +59,7 @@ public class NPCcontroller{
         }
     }
 
-    public void setupBehaviorTree(){
+    public void setupBehaviorTree(NPC npc){
         bt.insertAtRoot(new BTSequence(10));
         bt.insertAtRoot(new BTSequence(20));
         bt.insert(10, new AvatarNear(server, this, npc, false));
@@ -69,14 +73,18 @@ public class NPCcontroller{
 
     public void handleNear(Vector3f playerLocation) {
         nearFlag = true;
-        npc.setTargetLocation(playerLocation);
+        for (int i = 0; i < npcs.size(); i++){
+            npcs.get(i).setTargetLocation(playerLocation);
+        }
     }
     public void handleNotNear() {
         nearFlag = false;
-        npc.setSeePlayer(false);
+        for (int i = 0; i < npcs.size(); i++){
+            npcs.get(i).setSeePlayer(false);
+        }
     }
 
-    public NPC getNPC() {return npc;}
+    public Vector<NPC> getNPCs() {return npcs;}
     public double getCriteria() {return criteria;}
     public boolean getNearFlag() {return nearFlag;}
     public void setNearFlag(boolean f) { nearFlag = f; }

@@ -9,9 +9,11 @@ public class NPC {
     float speed = .08f;
     boolean seePlayer = false;
     Vector3f targetLocation;
+    int id;
 
-    public NPC(){
-        location = new Vector3f();
+    public NPC(int id, Vector3f location){
+        this.id = id;
+        this.location = location;
     }
 
     public void randomizeLocation(int seedX, int seedZ){
