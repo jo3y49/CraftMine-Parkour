@@ -78,6 +78,9 @@ public class CameraOrbit3D{
             newCameraRadius = cameraRadius;
         }
     }
+
+    public Vector3f getCamPosition(){return camera.getLocation();}
+
     private class OrbitAzimuthAction extends AbstractInputAction {
 
         private boolean left = false;

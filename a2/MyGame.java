@@ -67,6 +67,7 @@ public class MyGame extends VariableFrameRateGame
 	private PhysicsObject ball1P, ball2P, terrP, avatarP;
 	private boolean running = true;
 	private float vals[] = new float[16];
+	private boolean isPhysicsObject = false;
 
 	//server variables
 	private String serverAddress;
@@ -429,7 +430,8 @@ public class MyGame extends VariableFrameRateGame
 		CameraMovement moveCamLeft = new CameraMovement(cS, this, "left");
 		CameraMovement moveCamRight = new CameraMovement(cS, this, "right");
 
-		Jump jump = new Jump(this);
+		Jump jump = new Jump(this, 1);
+		Jump jumpDown = new Jump(this, -1);
 
 		Quit quit = new Quit(this);
 
@@ -446,7 +448,8 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.DOWN, moveCamDown);
 		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
 		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
-		setPressedActionToKeyboard(Key.SPACE, jump);
+		setHeldActionToKeyboard(Key.SPACE, jump);
+		setHeldActionToKeyboard(Key.X, jumpDown);
 		setPressedActionToKeyboard(Key.ESCAPE, quit);
 
 		initAudio();
@@ -463,7 +466,8 @@ public class MyGame extends VariableFrameRateGame
 		// avatar follows terrain map
 		Vector3f loc = avatar.getWorldLocation();
 		float height = terr.getHeight(loc.x(), loc.z());
-		avatar.setLocalLocation(loc.x(), height + 1, loc.z());
+		//if (!isPhysicsObject)
+			//avatar.setLocalLocation(loc.x(), height + 1, loc.z());
 
 		// update physics
 		if (running) {
@@ -477,7 +481,9 @@ public class MyGame extends VariableFrameRateGame
 					mat2.set(3,0,mat.m30());
 					mat2.set(3,1,mat.m31());
 					mat2.set(3,2,mat.m32());
-					go.setLocalTranslation(mat2);
+					if (isPhysicsObject || go != avatar){
+						go.setLocalTranslation(mat2);
+					}
 				}
 			} 	
 		}
@@ -549,6 +555,9 @@ public class MyGame extends VariableFrameRateGame
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0.0f) {
 					System.out.println("---- hit between " + obj1 + " and " + obj2);
+
+					// if collison between avatar and ground
+					// isphysicsobject = false
 					break;
 				} 
 			} 
@@ -620,12 +629,20 @@ public class MyGame extends VariableFrameRateGame
 	public ObjShape getNPCShape() { return shadowS; }
 	public TextureImage getNPCTexture() { return shadowT; }
 	public void avatarPhysics(float movement) { 
-		
-		avatarP.applyForce(0, 0, movement*500, 0, 0, 0);
-	}
-	public void avatarJump() {
 
-		avatarP.applyForce(0, 200, 0, 0, 0, 0);
+
+		int forceAmt = 100;
+		Vector3f camPos = new Vector3f(orbitController.getCamPosition());//get cam pos
+		Vector3f direction = new Vector3f(avatar.getLocalLocation());
+		direction.sub(camPos);
+		//direction.normalize();
+		
+		System.out.println("Test" + forceAmt);
+		avatarP.applyForce(direction.x*movement*forceAmt, 0, direction.z*movement*forceAmt, 0, 0, 0);
+	}
+	public void avatarJump(int direction) {
+
+		avatarP.applyForce(0, 25 * direction, 0, 0, 0, 0);
 	}
 
 	// ------------Networking-----------------------
@@ -635,6 +652,9 @@ public class MyGame extends VariableFrameRateGame
 	public GhostManager getGhostManager() { return gm; }
 	public ProtocolClient getProtClient() { return protClient; } 
 	public boolean getIsClientConnected() { return isClientConnected; }
+	public boolean getIsPhysicsObject() { return isPhysicsObject; }
+	public void setIsPhysicsObjectFalse() {isPhysicsObject = false;}
+	public void setIsPhysicsObjectTrue() {isPhysicsObject = true;}
 
 	public void handleAvatarAnimation(String a) { 
 		if (avatarA.getCurAnimation() == null)

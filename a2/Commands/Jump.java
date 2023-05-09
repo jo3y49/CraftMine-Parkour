@@ -7,12 +7,14 @@ import net.java.games.input.Event;
 public class Jump extends AbstractInputAction
 {
     private MyGame game;
+    private int direction;
 
-    public Jump (MyGame g) { game = g; }
+    public Jump (MyGame g, int d) { game = g; direction = d;}
 
     @Override
     public void performAction(float time, Event e)
     {
-        game.avatarJump();
+        game.avatarJump(direction);
+        game.setIsPhysicsObjectTrue();
     }
 }
