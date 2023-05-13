@@ -15,6 +15,6 @@ public class Jump extends AbstractInputAction
     public void performAction(float time, Event e)
     {
         game.avatarJump(direction);
-        game.setIsPhysicsObjectTrue();
+        game.stopAvatarJump();
     }
 }

@@ -1,5 +1,7 @@
 package tage.physics;
 
+import com.bulletphysics.dynamics.RigidBody;
+
 public interface PhysicsObject {
 	/**
 	 * Returns the unique ID associated with this {@code IPhysicsObject}
@@ -182,5 +184,7 @@ public interface PhysicsObject {
 	 * @param fz the Z component of the torque vector
 	 */
 	public void applyTorque(float fx, float fy, float fz);
+
+	public RigidBody getRigidBody();
 
 }

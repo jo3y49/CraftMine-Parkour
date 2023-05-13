@@ -19,6 +19,8 @@ import net.java.games.input.Component.Identifier.*;
 import java.lang.Math;
 import java.util.ArrayList;
 import org.joml.*;
+
+import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 //scripting imports
@@ -64,10 +66,18 @@ public class MyGame extends VariableFrameRateGame
 
 	//physics variables
 	private PhysicsEngine physicsEngine;
-	private PhysicsObject ball1P, ball2P, terrP, avatarP;
+	private PhysicsObject ball1P, ball2P, terrP, avatarP, terrHeightP;
 	private boolean running = true;
 	private float vals[] = new float[16];
-	private boolean isPhysicsObject = false;
+	private boolean canAvatarJump = true;
+
+	//test box for height map visual
+	private GameObject testBox;
+
+
+	
+
+	
 
 	//server variables
 	private String serverAddress;
@@ -242,6 +252,13 @@ public class MyGame extends VariableFrameRateGame
 		ball2.setLocalTranslation((new Matrix4f()).translation(-0.5f, 1, 0));
 		ball2.setLocalScale((new Matrix4f()).scaling(0.75f));
 
+		//test box please remove
+		testBox = new GameObject(GameObject.root(), shadowS, candT);
+		initialTranslation = (new Matrix4f()).translation(0,0,0);
+		initialScale = (new Matrix4f()).scaling(1f);
+		testBox.setLocalTranslation(initialTranslation);
+		testBox.setLocalScale(initialScale);
+
 
 		// build terrain object
 		terr = new GameObject(GameObject.root(), terrS, grass);
@@ -414,6 +431,17 @@ public class MyGame extends VariableFrameRateGame
 		avatarP = physicsEngine.addBoxObject(physicsEngine.nextUID(), 
 		mass, tempTransform, size);
 		avatar.setPhysicsObject(avatarP); 
+		//makes it so avatar doesn't disable for being idle too long
+		avatarP.getRigidBody().setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+
+
+		translation = new Matrix4f(avatar.getLocalTranslation());
+		translation.setTranslation(avatar.getLocalTranslation().m03() + 1, avatar.getLocalTranslation().m13(), avatar.getLocalTranslation().m23());
+		tempTransform = toDoubleArray(translation.get(vals));
+		float[] sizeTerr = {1,1,1};
+		terrHeightP = physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, sizeTerr);
+		testBox.setPhysicsObject(terrHeightP);
+		
 
 		StraightMovementController moveController = new StraightMovementController(this, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
 		StraightMovement moveForward = new StraightMovement(this, true, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
@@ -465,9 +493,24 @@ public class MyGame extends VariableFrameRateGame
 
 		// avatar follows terrain map
 		Vector3f loc = avatar.getWorldLocation();
-		float height = terr.getHeight(loc.x(), loc.z());
-		//if (!isPhysicsObject)
-			//avatar.setLocalLocation(loc.x(), height + 1, loc.z());
+		float height = terr.getHeight(loc.x() + 1, loc.z());
+
+
+		avatar.setLocalLocation(loc.x(), height + 1, loc.z());
+		System.out.println(height);
+
+		// testBox.setLocalLocation(avatar.getLocalLocation().x() + 1, height, avatar.getLocalLocation().z());
+		// double[ ] tempTransform;
+		// Matrix4f translation = new Matrix4f(avatar.getLocalTranslation());
+		// translation.setTranslation(avatar.getLocalLocation().x() + 1, height, avatar.getLocalLocation().z());
+		// tempTransform = toDoubleArray(translation.get(vals));
+
+		// terrHeightP.setTransform(tempTransform);
+
+
+
+
+
 
 		// update physics
 		if (running) {
@@ -481,9 +524,7 @@ public class MyGame extends VariableFrameRateGame
 					mat2.set(3,0,mat.m30());
 					mat2.set(3,1,mat.m31());
 					mat2.set(3,2,mat.m32());
-					if (isPhysicsObject || go != avatar){
 						go.setLocalTranslation(mat2);
-					}
 				}
 			} 	
 		}
@@ -507,8 +548,8 @@ public class MyGame extends VariableFrameRateGame
 
 		//checkPrizeCollision();
 
-		double spinSpeed = 30;
-		float spinDistance = 1;
+		// double spinSpeed = 30;
+		// float spinDistance = 1;
 
 		//double spinSpeed = (Double) (jsEngine.get("spinSpeed"));
 		//float spinDistance = ((Double) jsEngine.get("spinDistance")).floatValue();
@@ -557,6 +598,10 @@ public class MyGame extends VariableFrameRateGame
 					System.out.println("---- hit between " + obj1 + " and " + obj2);
 
 					// if collison between avatar and ground
+					if (avatarP.getUID() == obj1.getUID() || avatarP.getUID() == obj2.getUID())
+					{
+						canAvatarJump = true;
+					}
 					// isphysicsobject = false
 					break;
 				} 
@@ -635,14 +680,13 @@ public class MyGame extends VariableFrameRateGame
 		Vector3f camPos = new Vector3f(orbitController.getCamPosition());//get cam pos
 		Vector3f direction = new Vector3f(avatar.getLocalLocation());
 		direction.sub(camPos);
-		//direction.normalize();
 		
-		System.out.println("Test" + forceAmt);
 		avatarP.applyForce(direction.x*movement*forceAmt, 0, direction.z*movement*forceAmt, 0, 0, 0);
 	}
 	public void avatarJump(int direction) {
-
-		avatarP.applyForce(0, 25 * direction, 0, 0, 0, 0);
+		if (canAvatarJump){
+			avatarP.applyForce(0, 100 * direction, 0, 0, 0, 0);
+		}
 	}
 
 	// ------------Networking-----------------------
@@ -652,9 +696,7 @@ public class MyGame extends VariableFrameRateGame
 	public GhostManager getGhostManager() { return gm; }
 	public ProtocolClient getProtClient() { return protClient; } 
 	public boolean getIsClientConnected() { return isClientConnected; }
-	public boolean getIsPhysicsObject() { return isPhysicsObject; }
-	public void setIsPhysicsObjectFalse() {isPhysicsObject = false;}
-	public void setIsPhysicsObjectTrue() {isPhysicsObject = true;}
+	public void stopAvatarJump() {canAvatarJump = false;}
 
 	public void handleAvatarAnimation(String a) { 
 		if (avatarA.getCurAnimation() == null)
