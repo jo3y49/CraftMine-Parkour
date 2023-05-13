@@ -70,18 +70,13 @@ public class GhostManager
 		}
 	}
 
-	public void updateGhostNPC(int id, Vector3f position, double size){
+	public void updateGhostNPC(int id, Vector3f position){
 		try {
 			ghostNPCs.get(id).setPosition(position);
-			ghostNPCs.get(id).setSize(size);
 		} catch (Exception e) {
 			
 		}
 	}
-
-	public boolean checkNear(Vector3f p, double criteria) {
-        return game.getPlayerPosition().distance(p) < criteria;
-    }
 
 	public GhostNPC getGhostNPC(int id) {
 		return ghostNPCs.get(id);

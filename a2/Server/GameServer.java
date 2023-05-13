@@ -83,27 +83,26 @@ public class GameServer  extends GameConnectionServer<UUID> {
         // Received Message Format: (needNPC,id)
         if(messageTokens[0].compareTo("needNPC") == 0) {
             System.out.println("server got a needNPC message");
-            String[] location = {
-                Double.toString(npcCtrl.getNPC().getX()),
-                Double.toString(npcCtrl.getNPC().getY()),
-                Double.toString(npcCtrl.getNPC().getZ())
-            };
-            sendCreateNPCmsg(location);
+            UUID clientID = UUID.fromString(messageTokens[1]);
+            for (int i = 0; i < npcCtrl.getNPCs().size(); i++){
+                String[] location = {
+                    Double.toString(npcCtrl.getNPCs().get(i).getX()),
+                    Double.toString(npcCtrl.getNPCs().get(i).getY()), 
+                    Double.toString(npcCtrl.getNPCs().get(i).getZ())
+                };
+                sendCreateNPCmsg(i, location, clientID);
+            }
         }
         
         // Case where server receives notice that an av is close to the npc
-        // Received Message Format: (isnear, x, y, z)
-        if(messageTokens[0].compareTo("isnear") == 0) {
+        // Received Message Format: (location, x, y, z)
+        if(messageTokens[0].compareTo("location") == 0) {
             Vector3f playerLocation = new Vector3f(
                 Float.parseFloat(messageTokens[1]),
                 Float.parseFloat(messageTokens[2]),
                 Float.parseFloat(messageTokens[3])
             );
             npcCtrl.handleNear(playerLocation);
-        }
-
-        if(messageTokens[0].compareTo("isnotnear") == 0) {
-            npcCtrl.handleNotNear();
         }
     }
 
@@ -214,26 +213,28 @@ public class GameServer  extends GameConnectionServer<UUID> {
 
     public void sendCheckForAvatarNear(){
         try{
-            String message = new String("isnr");
-            message += "," + (npcCtrl.getNPC()).getX();
-            message += "," + (npcCtrl.getNPC()).getY();
-            message += "," + (npcCtrl.getNPC()).getZ();
-            message += "," + (npcCtrl.getCriteria());
-            sendPacketToAll(message);
+            for (int i = 0; i < npcCtrl.getNPCs().size(); i++){
+                String message = new String("isnr");
+                message += "," + npcCtrl.getNPCs().get(i).getX();
+                message += "," + npcCtrl.getNPCs().get(i).getY();
+                message += "," + npcCtrl.getNPCs().get(i).getZ();
+                message += "," + npcCtrl.getCriteria();
+                sendPacketToAll(message);
+            }
         } catch(IOException e) {
             System.out.println("couldn't send msg");
             e.printStackTrace();
         }
     }
 
-    public void sendCreateNPCmsg(String[] position){
+    public void sendCreateNPCmsg(int id, String[] position, UUID client){
         try {
             System.out.println("server telling clients about an NPC");
-            String message = new String("createNPC," + 0);
+            String message = new String("createNPC," + id);
             message += "," + position[0];
             message += "," + position[1];
             message += "," + position[2];
-            sendPacketToAll(message);
+            sendPacket(message, client);
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -242,19 +243,24 @@ public class GameServer  extends GameConnectionServer<UUID> {
     // Format: (moveNPC,id, x,y,z, criteria, size)
     public void sendNPCinfo(){
         try {
-            String message = new String("moveNPC," + 0);
-            message += "," + (npcCtrl.getNPC()).getX();
-            message += "," + (npcCtrl.getNPC()).getY();
-            message += "," + (npcCtrl.getNPC()).getZ();
-            message += "," + (npcCtrl.getCriteria());
-            message += "," + (npcCtrl.getNPC().getSize());
-            sendPacketToAll(message);
+            for (int i = 0; i < npcCtrl.getNPCs().size(); i++){
+                String message = new String("moveNPC," + i);
+                message += "," + npcCtrl.getNPCs().get(i).getX();
+                message += "," + npcCtrl.getNPCs().get(i).getY();
+                message += "," + npcCtrl.getNPCs().get(i).getZ();
+                sendPacketToAll(message);
+            }
         } catch (IOException e){
             e.printStackTrace();
         }
     }
 
-    public void sendNPCstart(UUID clientID){
-
+    public void sendLocationMessage(){
+        try {
+            sendPacketToAll("location");
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }

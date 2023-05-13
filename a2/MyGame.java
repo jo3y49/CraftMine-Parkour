@@ -33,7 +33,6 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
@@ -43,11 +42,11 @@ public class MyGame extends VariableFrameRateGame
 
 	private NodeController rc, fc;
 	private CameraOrbit3D orbitController;
-	private Light light1;
+	private Light lightAmb;
 
 	private GameObject avatar, candle, shadow, cubM, tor, torM, sph, sphM, pyr,  x, y, z, ball1, ball2;
-	private AnimatedShape avatarA;
-	private ObjShape ghostS, candS, shadowS, torS, pyrS, sphS, linxS, linyS, linzS;
+	private AnimatedShape avatarA, shadowS;
+	private ObjShape ghostS, candS, torS, pyrS, sphS, linxS, linyS, linzS;
 	private TextureImage dolT, ghostT, candT, shadowT;
 
 	private ArrayList<GameObject> prizes = new ArrayList<>();
@@ -113,7 +112,7 @@ public class MyGame extends VariableFrameRateGame
 		avatarA.loadAnimation("walk", "Player.rka");
 		ghostS = new ImportedModel("Candle.obj");
 		candS = new ImportedModel("Candle.obj");
-		shadowS = new Cube();
+		shadowS = new AnimatedShape("Player.rkm", "Player.rks");
 		torS = new Torus(.5f, .2f, 48);
 		pyrS = new ManualPyramid();
 		sphS = new Sphere();
@@ -307,9 +306,9 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void initializeLights()
 	{	Light.setGlobalAmbient(0.5f, 0.5f, 0.5f);
-		light1 = new Light();
-		light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
-		(engine.getSceneGraph()).addLight(light1);
+		lightAmb = new Light();
+		lightAmb.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
+		(engine.getSceneGraph()).addLight(lightAmb);
 	}
 
 	public void initAudio() {
@@ -670,7 +669,7 @@ public class MyGame extends VariableFrameRateGame
 			for (int j = 0; j < manifold.getNumContacts(); j++) {
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0.0f) {
-					System.out.println("---- hit between " + obj1 + " and " + obj2);
+					// System.out.println("---- hit between " + obj1 + " and " + obj2);
 
 					// if collison between avatar and ground
 					if (avatarP.getUID() == obj1.getUID() || avatarP.getUID() == obj2.getUID())
