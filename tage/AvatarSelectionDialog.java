@@ -7,17 +7,19 @@ import javax.swing.*;
 public class AvatarSelectionDialog extends JDialog implements ActionListener
 {
     private String selectedAvatar = null;
-    private JComboBox<String> avatarComboBox;
+    private String[] avatarPaths = {"assets/textures/Candle.png", "Avatar 2", "Avatar 3", "Avatar 4"};
+    private ImageIcon[] avatars;
+    private JComboBox<ImageIcon> avatarComboBox;
+    private int selectedIndex = 0;
 
     public AvatarSelectionDialog ()
     {
         setTitle("Choose an Avatar");
-        setSize(300, 200);
-        setLocation (200,200);
+        setSize(1000, 800);
+        setLocation (200,0);
         setResizable(true);
         doMyLayout();
-
-        // make the dialog modal, so that 'show' will block until dialog is dismissed
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setModal(true);
     }
 
@@ -29,8 +31,15 @@ public class AvatarSelectionDialog extends JDialog implements ActionListener
         JPanel avatarPanel = new JPanel();
         avatarPanel.setBorder(BorderFactory.createTitledBorder("Choose an avatar:"));
 
-        // List of avatar names. This could be replaced with actual images.
-        String[] avatars = {"Avatar 1", "Avatar 2", "Avatar 3", "Avatar 4"};
+        // Initialize the avatars array
+        avatars = new ImageIcon[avatarPaths.length];
+
+        for (int i = 0; i < avatarPaths.length; i++) {
+            ImageIcon unscaledIcon = new ImageIcon(avatarPaths[i]);
+            Image image = unscaledIcon.getImage(); // transform it 
+            Image newimg = image.getScaledInstance(250, 250, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+            avatars[i] = new ImageIcon(newimg);  // transform it back
+        }
 
         // Add a combo box containing the available avatars
         avatarComboBox = new JComboBox<>(avatars);
@@ -45,9 +54,7 @@ public class AvatarSelectionDialog extends JDialog implements ActionListener
         newButton.addActionListener(this);
         buttonPanel.add(newButton);
 
-        newButton = new JButton("Cancel");
-        newButton.setActionCommand( "Cancel" );
-        buttonPanel.add(newButton);
+        
         this.add(buttonPanel, "South");
     }
 
@@ -56,15 +63,15 @@ public class AvatarSelectionDialog extends JDialog implements ActionListener
         if (e.getActionCommand().equals("OK"))
         {
             // Get the avatar selected by the user
-            selectedAvatar = (String) avatarComboBox.getSelectedItem();
+            selectedIndex = avatarComboBox.getSelectedIndex(); // Get the index of the selected item
         }
 
         setVisible(false);
     }
 
-    public String getSelectedAvatar()
+    public int getSelectedAvatar()
     {
-        return selectedAvatar;
+        return selectedIndex;
     }
 
     public void showIt()

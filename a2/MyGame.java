@@ -48,7 +48,7 @@ public class MyGame extends VariableFrameRateGame
 	private AnimatedShape avatarA, shadowS;
 	private ObjShape ghostS, candS, torS, pyrS, sphS, linxS, linyS, linzS;
 	private TextureImage dolT, ghostT, candT, shadowT;
-	private String selectedAvatar;
+	private TextureImage avatarTexs[] = new TextureImage[4];
 
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
@@ -104,6 +104,7 @@ public class MyGame extends VariableFrameRateGame
 	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]));
 		engine = new Engine(game);
 		game.initializeSystem();
+		game.selectAvatar();
 		game.game_loop();
 	}
 
@@ -137,6 +138,12 @@ public class MyGame extends VariableFrameRateGame
 		//Need to make hill/grass textures
 		hills = new TextureImage("Hills.png");
 		grass = new TextureImage("Grass.jpg");
+
+		String[] avatars = {"Candle.png", "Hills.png", "Cube_Decoration.png", "Dolphin_HighPolyUV.png"};
+
+		for (int i = 0; i < avatarTexs.length; i++){
+			avatarTexs[i] = new TextureImage(avatars[i]);
+		}
 	}	 
 
 	//skybox load
@@ -787,9 +794,6 @@ public class MyGame extends VariableFrameRateGame
 		} catch (IOException e){
 			e.printStackTrace();
 		}
-		AvatarSelectionDialog asd = new AvatarSelectionDialog();
-		asd.showIt();
-		selectedAvatar = asd.getSelectedAvatar();
 		if (protClient == null){
 			System.out.println("missing protocol host");
 		} else {
@@ -797,6 +801,12 @@ public class MyGame extends VariableFrameRateGame
 			protClient.sendJoinMessage();
 			protClient.sendNeedNPCMessage();
 		}
+	}
+
+	private void selectAvatar() {
+		AvatarSelectionDialog asd = new AvatarSelectionDialog();
+		asd.showIt();
+		avatar.setTextureImage(avatarTexs[asd.getSelectedAvatar()]);
 	}
 
 	protected void processNetworking(float elapsTime){
