@@ -1,5 +1,7 @@
 package a2.Server;
 
+import java.util.ArrayList;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.joml.Random;
@@ -72,7 +74,8 @@ public class NPCcontroller{
     }
 
     public void handleNear(Vector3f playerLocation) {
-        nearFlag = true;
+        
+
         for (int i = 0; i < npcs.size(); i++){
             npcs.get(i).setTargetLocation(playerLocation);
         }

@@ -135,17 +135,8 @@ public class ProtocolClient extends GameConnectionClient
 
 				ghostManager.updateGhostNPC(id, ghostPosition);
 			}
-			if (messageTokens[0].compareTo("isnr") == 0){
-				Vector3f ghostPosition = new Vector3f(
-				Float.parseFloat(messageTokens[1]),
-				Float.parseFloat(messageTokens[2]),
-				Float.parseFloat(messageTokens[3]));
-
-				double criteria = Double.parseDouble(messageTokens[4]);
-
-				if (ghostManager.checkNear(ghostPosition, criteria)){
-					sendNearMessage();
-				}
+			if (messageTokens[0].compareTo("location") == 0){
+				sendLocationMessage();
 			}
 		}
 	}	
@@ -236,6 +227,20 @@ public class ProtocolClient extends GameConnectionClient
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
+
+	public void sendLocationMessage()
+	{
+		try{
+			String message = "location";
+			message += "," + game.getAvatar().getWorldLocation().x();
+			message += "," + game.getAvatar().getWorldLocation().y();
+			message += "," + game.getAvatar().getWorldLocation().z();
+
+			sendPacket(message);
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
 
 	// ------------- GHOST NPC SECTION --------------
 

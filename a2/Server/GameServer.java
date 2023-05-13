@@ -95,8 +95,8 @@ public class GameServer  extends GameConnectionServer<UUID> {
         }
         
         // Case where server receives notice that an av is close to the npc
-        // Received Message Format: (isnear, x, y, z)
-        if(messageTokens[0].compareTo("isnear") == 0) {
+        // Received Message Format: (location, x, y, z)
+        if(messageTokens[0].compareTo("location") == 0) {
             Vector3f playerLocation = new Vector3f(
                 Float.parseFloat(messageTokens[1]),
                 Float.parseFloat(messageTokens[2]),
@@ -255,7 +255,12 @@ public class GameServer  extends GameConnectionServer<UUID> {
         }
     }
 
-    public void sendNPCstart(UUID clientID){
-
+    public void sendLocationMessage(){
+        try {
+            sendPacketToAll("location");
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
