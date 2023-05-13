@@ -13,7 +13,7 @@ public class NPC {
 
     public NPC(int id, Vector3f location){
         this.id = id;
-        this.location = location;
+        this.location = new Vector3f(location.x(), location.y() + 2, location.z());
     }
 
     public void randomizeLocation(int seedX, int seedZ){
@@ -37,7 +37,7 @@ public class NPC {
             Vector3f direction = new Vector3f();
             targetLocation.sub(location, direction).normalize();
             direction.mul(speed);
-            location.add(direction);
+            location.add(new Vector3f(direction.x(), 0, direction.z()));
         }
         else {
             if (location.x > 10) dir=-.1f;
