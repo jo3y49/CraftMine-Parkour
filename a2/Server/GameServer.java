@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.joml.Vector3f;
 
+import tage.TextureImage;
 import tage.networking.server.GameConnectionServer;
 import tage.networking.server.IClientInfo;
 
@@ -55,8 +56,9 @@ public class GameServer  extends GameConnectionServer<UUID> {
         // Received Message Format: (create,localId,x,y,z)
         if(messageTokens[0].compareTo("create") == 0)
         {	UUID clientID = UUID.fromString(messageTokens[1]);
-            String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
-            sendCreateMessages(clientID, pos);
+            String[] pos = {messageTokens[2], messageTokens[3], messageTokens[2]};
+            String tex = messageTokens[5];
+            sendCreateMessages(clientID, pos, tex);
             sendWantsDetailsMessages(clientID);
         }
         
@@ -147,12 +149,13 @@ public class GameServer  extends GameConnectionServer<UUID> {
 	// connected to the server. 
 	// Message Format: (create,remoteId,x,y,z) where x, y, and z represent the position
 
-	public void sendCreateMessages(UUID clientID, String[] position)
+	public void sendCreateMessages(UUID clientID, String[] position, String tex)
 	{	try 
 		{	String message = new String("create," + clientID.toString());
-			message += "," + position[0];
-			message += "," + position[1];
-			message += "," + position[2];	
+            message += "," + position[0];
+            message += "," + position[1];
+            message += "," + position[2];
+			message += "," + tex;	
 			forwardPacketToAll(message, clientID);
 		} 
 		catch (IOException e) 

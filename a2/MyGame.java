@@ -49,6 +49,7 @@ public class MyGame extends VariableFrameRateGame
 	private ObjShape ghostS, candS, torS, pyrS, sphS, linxS, linyS, linzS;
 	private TextureImage dolT, ghostT, candT, shadowT;
 	private TextureImage avatarTexs[] = new TextureImage[4];
+	private int avatarIndex;
 
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
@@ -798,7 +799,7 @@ public class MyGame extends VariableFrameRateGame
 			System.out.println("missing protocol host");
 		} else {
 			System.out.println("sending join message to protocol host");
-			protClient.sendJoinMessage(avatar.getTextureImage());
+			protClient.sendJoinMessage();
 			protClient.sendNeedNPCMessage();
 		}
 	}
@@ -806,7 +807,8 @@ public class MyGame extends VariableFrameRateGame
 	private void selectAvatar() {
 		AvatarSelectionDialog asd = new AvatarSelectionDialog();
 		asd.showIt();
-		avatar.setTextureImage(avatarTexs[asd.getSelectedAvatar()]);
+		avatarIndex = asd.getSelectedAvatar();
+		avatar.setTextureImage(avatarTexs[avatarIndex]);
 	}
 
 	protected void processNetworking(float elapsTime){
@@ -816,6 +818,8 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
+	public int getAvatarIndex() {return avatarIndex;}
+	public TextureImage[] getAvatarTexts() {return avatarTexs;}
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 
 	public void killGame(){

@@ -43,7 +43,7 @@ public class ProtocolClient extends GameConnectionClient
 			{	if(messageTokens[1].compareTo("success") == 0)
 				{	System.out.println("join success confirmed");
 					game.setIsConnected(true);
-					sendCreateMessage(game.getPlayerPosition());
+					sendCreateMessage();
 				}
 				if(messageTokens[1].compareTo("failure") == 0)
 				{	System.out.println("join failure confirmed");
@@ -75,8 +75,10 @@ public class ProtocolClient extends GameConnectionClient
 					Float.parseFloat(messageTokens[3]),
 					Float.parseFloat(messageTokens[4]));
 
+				int avatarIndex = Integer.parseInt(messageTokens[5]);
+
 				try
-				{	ghostManager.createGhostAvatar(ghostID, ghostPosition);
+				{	ghostManager.createGhostAvatar(ghostID, ghostPosition, avatarIndex);
 				}	catch (IOException e)
 				{	System.out.println("error creating ghost avatar");
 				}
@@ -151,9 +153,9 @@ public class ProtocolClient extends GameConnectionClient
 	// a random UUID.
 	// Message Format: (join,localId,texture)
 	
-	public void sendJoinMessage(TextureImage t)
+	public void sendJoinMessage()
 	{	try 
-		{	sendPacket(new String("join," + id.toString() + "," + t));
+		{	sendPacket(new String("join," + id.toString()));
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
@@ -173,12 +175,14 @@ public class ProtocolClient extends GameConnectionClient
 	// with the server.
 	// Message Format: (create,localId,x,y,z) where x, y, and z represent the position
 
-	public void sendCreateMessage(Vector3f position)
+	public void sendCreateMessage()
 	{	try 
 		{	String message = new String("create," + id.toString());
-			message += "," + position.x();
-			message += "," + position.y();
-			message += "," + position.z();
+
+			message += "," + game.getAvatar().getWorldLocation().x();
+			message += "," + game.getAvatar().getWorldLocation().y();
+			message += "," + game.getAvatar().getWorldLocation().z();
+			message += "," + game.getAvatarIndex();
 			
 			sendPacket(message);
 		} catch (IOException e) 
