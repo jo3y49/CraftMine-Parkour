@@ -27,7 +27,11 @@ public class ProtocolClient extends GameConnectionClient
 	protected void processPacket(Object message)
 	{	String strMessage = (String)message;
 		System.out.println("message received -->" + strMessage);
-		String[] messageTokens = strMessage.split(",");
+		String[] messageTokens = {""};
+		try {
+			messageTokens = strMessage.split(",");
+		} catch (Exception e){}
+		
 		
 		// Game specific protocol to handle the message
 		if(messageTokens.length > 0)

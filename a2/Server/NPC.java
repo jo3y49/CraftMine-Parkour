@@ -27,6 +27,7 @@ public class NPC {
     public void getBig() {size=2;}
     public void getSmall() {size=1;}
     public double getSize() {return size;}
+    public Vector3f getLocation() {return location;}
 
     public void setSeePlayer(boolean s) {seePlayer=s;}
     public void setTargetLocation(Vector3f l) {targetLocation=l;}
