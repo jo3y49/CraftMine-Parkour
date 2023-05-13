@@ -83,13 +83,14 @@ public class GameServer  extends GameConnectionServer<UUID> {
         // Received Message Format: (needNPC,id)
         if(messageTokens[0].compareTo("needNPC") == 0) {
             System.out.println("server got a needNPC message");
+            UUID clientID = UUID.fromString(messageTokens[1]);
             for (int i = 0; i < npcCtrl.getNPCs().size(); i++){
                 String[] location = {
                     Double.toString(npcCtrl.getNPCs().get(i).getX()),
                     Double.toString(npcCtrl.getNPCs().get(i).getY()), 
                     Double.toString(npcCtrl.getNPCs().get(i).getZ())
                 };
-                sendCreateNPCmsg(i, location);
+                sendCreateNPCmsg(i, location, clientID);
             }
         }
         
@@ -102,10 +103,6 @@ public class GameServer  extends GameConnectionServer<UUID> {
                 Float.parseFloat(messageTokens[3])
             );
             npcCtrl.handleNear(playerLocation);
-        }
-
-        if(messageTokens[0].compareTo("isnotnear") == 0) {
-            npcCtrl.handleNotNear();
         }
     }
 
@@ -230,14 +227,14 @@ public class GameServer  extends GameConnectionServer<UUID> {
         }
     }
 
-    public void sendCreateNPCmsg(int id, String[] position){
+    public void sendCreateNPCmsg(int id, String[] position, UUID client){
         try {
             System.out.println("server telling clients about an NPC");
             String message = new String("createNPC," + id);
             message += "," + position[0];
             message += "," + position[1];
             message += "," + position[2];
-            sendPacketToAll(message);
+            sendPacket(message, client);
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -251,7 +248,6 @@ public class GameServer  extends GameConnectionServer<UUID> {
                 message += "," + npcCtrl.getNPCs().get(i).getX();
                 message += "," + npcCtrl.getNPCs().get(i).getY();
                 message += "," + npcCtrl.getNPCs().get(i).getZ();
-                message += "," + npcCtrl.getCriteria();
                 sendPacketToAll(message);
             }
         } catch (IOException e){

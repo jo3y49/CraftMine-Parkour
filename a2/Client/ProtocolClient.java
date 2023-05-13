@@ -112,13 +112,13 @@ public class ProtocolClient extends GameConnectionClient
 			if (messageTokens[0].compareTo("createNPC") == 0)
 			{ // create a new ghost NPC
 			// Parse out the position
-			int id = Integer.parseInt(messageTokens[1]);
+			int npcid = Integer.parseInt(messageTokens[1]);
 			Vector3f ghostPosition = new Vector3f(
 			Float.parseFloat(messageTokens[2]),
 			Float.parseFloat(messageTokens[3]),
 			Float.parseFloat(messageTokens[4]));
 			try
-			{ ghostManager.createGhostNPC(id, ghostPosition);
+			{ ghostManager.createGhostNPC(npcid, ghostPosition);
 			} catch (IOException e) { e.printStackTrace(); } // error creating ghost avatar
 			}
 			// Handle moneNPC message
@@ -133,14 +133,18 @@ public class ProtocolClient extends GameConnectionClient
 				Float.parseFloat(messageTokens[3]),
 				Float.parseFloat(messageTokens[4]));
 
-				double criteria = Double.parseDouble(messageTokens[5]);
-
 				ghostManager.updateGhostNPC(id, ghostPosition);
+			}
+			if (messageTokens[0].compareTo("isnr") == 0){
+				Vector3f ghostPosition = new Vector3f(
+				Float.parseFloat(messageTokens[1]),
+				Float.parseFloat(messageTokens[2]),
+				Float.parseFloat(messageTokens[3]));
+
+				double criteria = Double.parseDouble(messageTokens[4]);
 
 				if (ghostManager.checkNear(ghostPosition, criteria)){
 					sendNearMessage();
-				} else {
-					sendFarMessage();
 				}
 			}
 		}
@@ -200,15 +204,6 @@ public class ProtocolClient extends GameConnectionClient
 			e.printStackTrace();
 		}
 	}
-
-	public void sendFarMessage() {
-		try {
-			sendPacket("isnotnear");
-		} catch (IOException e){
-			e.printStackTrace();
-		}
-	}
-	
 	// Informs the server of the local avatar's position. The server then 
 	// forwards this message to the client with the ID value matching remoteId. 
 	// This message is generated in response to receiving a WANTS_DETAILS message 
@@ -246,7 +241,7 @@ public class ProtocolClient extends GameConnectionClient
 
 	public void sendNeedNPCMessage() {
 		{	try 
-			{	String message = new String("needNPC");
+			{	String message = new String("needNPC," + id.toString());
 				
 				sendPacket(message);
 			} catch (IOException e) {

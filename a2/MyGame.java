@@ -553,7 +553,7 @@ public class MyGame extends VariableFrameRateGame
 			for (int j = 0; j < manifold.getNumContacts(); j++) {
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0.0f) {
-					System.out.println("---- hit between " + obj1 + " and " + obj2);
+					// System.out.println("---- hit between " + obj1 + " and " + obj2);
 
 					// if collison between avatar and ground
 					// isphysicsobject = false

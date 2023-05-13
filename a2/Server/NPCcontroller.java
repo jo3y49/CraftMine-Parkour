@@ -77,12 +77,6 @@ public class NPCcontroller{
             npcs.get(i).setTargetLocation(playerLocation);
         }
     }
-    public void handleNotNear() {
-        nearFlag = false;
-        for (int i = 0; i < npcs.size(); i++){
-            npcs.get(i).setSeePlayer(false);
-        }
-    }
 
     public Vector<NPC> getNPCs() {return npcs;}
     public double getCriteria() {return criteria;}
