@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.util.UUID;
 import org.joml.*;
 import a2.MyGame;
+import tage.TextureImage;
 import tage.networking.client.GameConnectionClient;
 
 public class ProtocolClient extends GameConnectionClient
@@ -148,11 +149,11 @@ public class ProtocolClient extends GameConnectionClient
 	// The initial message from the game client requesting to join the 
 	// server. localId is a unique identifier for the client. Recommend 
 	// a random UUID.
-	// Message Format: (join,localId)
+	// Message Format: (join,localId,texture)
 	
-	public void sendJoinMessage()
+	public void sendJoinMessage(TextureImage t)
 	{	try 
-		{	sendPacket(new String("join," + id.toString()));
+		{	sendPacket(new String("join," + id.toString() + "," + t));
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}

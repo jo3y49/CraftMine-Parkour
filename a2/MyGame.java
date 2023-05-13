@@ -104,7 +104,6 @@ public class MyGame extends VariableFrameRateGame
 	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]));
 		engine = new Engine(game);
 		game.initializeSystem();
-		game.selectAvatar();
 		game.game_loop();
 	}
 
@@ -794,11 +793,12 @@ public class MyGame extends VariableFrameRateGame
 		} catch (IOException e){
 			e.printStackTrace();
 		}
+		selectAvatar();
 		if (protClient == null){
 			System.out.println("missing protocol host");
 		} else {
 			System.out.println("sending join message to protocol host");
-			protClient.sendJoinMessage();
+			protClient.sendJoinMessage(avatar.getTextureImage());
 			protClient.sendNeedNPCMessage();
 		}
 	}
