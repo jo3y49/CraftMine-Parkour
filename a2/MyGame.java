@@ -71,11 +71,12 @@ public class MyGame extends VariableFrameRateGame
 	private float vals[] = new float[16];
 	private boolean canAvatarJump = true;
 
-	//test box for height map visual
-	private GameObject testBox;
 
-
-	
+	//Platforms
+	private GameObject platform1, platform2, platform3, platform4, platform5, platform6, platform7, platform8, platform9, platform10;
+	private ObjShape platS;
+	private PhysicsObject plat1P, plat2P, plat3P, plat4P, plat5P, plat6P, plat7P, plat8P, plat9P, plat10P;
+	//private TextureImage platform;
 
 	
 
@@ -116,6 +117,7 @@ public class MyGame extends VariableFrameRateGame
 		torS = new Torus(.5f, .2f, 48);
 		pyrS = new ManualPyramid();
 		sphS = new Sphere();
+		platS = new Cube();
 		linxS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(5f, 0f, 0f));
 		linyS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 5f, 0f));
 		linzS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, -5f));
@@ -252,14 +254,6 @@ public class MyGame extends VariableFrameRateGame
 		ball2.setLocalTranslation((new Matrix4f()).translation(-0.5f, 1, 0));
 		ball2.setLocalScale((new Matrix4f()).scaling(0.75f));
 
-		//test box please remove
-		testBox = new GameObject(GameObject.root(), shadowS, candT);
-		initialTranslation = (new Matrix4f()).translation(0,0,0);
-		initialScale = (new Matrix4f()).scaling(1f);
-		testBox.setLocalTranslation(initialTranslation);
-		testBox.setLocalScale(initialScale);
-
-
 		// build terrain object
 		terr = new GameObject(GameObject.root(), terrS, grass);
 		initialTranslation = (new Matrix4f()).translation(0f,0f,0f);
@@ -267,6 +261,47 @@ public class MyGame extends VariableFrameRateGame
 		initialScale = (new Matrix4f()).scaling(20.0f, 1.0f, 20.0f);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
+
+		//building platforms
+		platform1 = new GameObject(GameObject.root(), platS, grass);
+		platform1.setLocalTranslation((new Matrix4f()).translation(10, 2, 10));
+		platform1.setLocalScale((new Matrix4f()).scaling(1));
+
+		platform2 = new GameObject(GameObject.root(), platS, grass);
+		platform2.setLocalTranslation((new Matrix4f()).translation(-10, 4, 16));
+		platform2.setLocalScale((new Matrix4f()).scaling(1));
+
+		platform3 = new GameObject(GameObject.root(), platS, grass);
+		platform3.setLocalTranslation((new Matrix4f()).translation(7, 6, -13));
+		platform3.setLocalScale((new Matrix4f()).scaling(1));
+
+		platform4 = new GameObject(GameObject.root(), platS, grass);
+		platform4.setLocalTranslation((new Matrix4f()).translation(18, 8, -9));
+		platform4.setLocalScale((new Matrix4f()).scaling(1));
+
+		platform5 = new GameObject(GameObject.root(), platS, grass);
+		platform5.setLocalTranslation((new Matrix4f()).translation(-19, 10, 20));
+		platform5.setLocalScale((new Matrix4f()).scaling(1));
+
+		platform6 = new GameObject(GameObject.root(), platS, grass);
+		platform6.setLocalTranslation((new Matrix4f()).translation(3, 12, 11));
+		platform6.setLocalScale((new Matrix4f()).scaling(1));
+
+		platform7 = new GameObject(GameObject.root(), platS, grass);
+		platform7.setLocalTranslation((new Matrix4f()).translation(-17, 14, -7));
+		platform7.setLocalScale((new Matrix4f()).scaling(1));
+
+		platform8 = new GameObject(GameObject.root(), platS, grass);
+		platform8.setLocalTranslation((new Matrix4f()).translation(-5, 16, 0));
+		platform8.setLocalScale((new Matrix4f()).scaling(1));
+
+		platform9 = new GameObject(GameObject.root(), platS, grass);
+		platform9.setLocalTranslation((new Matrix4f()).translation(19, 18, -18));
+		platform9.setLocalScale((new Matrix4f()).scaling(1));
+
+		platform10 = new GameObject(GameObject.root(), platS, grass);
+		platform10.setLocalTranslation((new Matrix4f()).translation(10, 20, 10));
+		platform10.setLocalScale((new Matrix4f()).scaling(1));
 	}
 
 	@Override
@@ -424,7 +459,6 @@ public class MyGame extends VariableFrameRateGame
 		terrP.setBounciness(0.0f);
 		terr.setPhysicsObject(terrP);
 
-
 		translation = new Matrix4f(avatar.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
 		float[] size = {1,2,1};
@@ -435,12 +469,60 @@ public class MyGame extends VariableFrameRateGame
 		avatarP.getRigidBody().setActivationState(CollisionObject.DISABLE_DEACTIVATION);
 
 
-		translation = new Matrix4f(avatar.getLocalTranslation());
-		translation.setTranslation(avatar.getLocalTranslation().m03() + 1, avatar.getLocalTranslation().m13(), avatar.getLocalTranslation().m23());
+		//creating platforms
+		translation = new Matrix4f(platform1.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
-		float[] sizeTerr = {1,1,1};
-		terrHeightP = physicsEngine.addBoxObject(physicsEngine.nextUID(), mass, tempTransform, sizeTerr);
-		testBox.setPhysicsObject(terrHeightP);
+		float[] sizePlat = {2,2,2};
+		plat1P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform1.setPhysicsObject(plat1P);
+
+		translation = new Matrix4f(platform2.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		plat2P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform2.setPhysicsObject(plat2P);
+
+		translation = new Matrix4f(platform3.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		plat3P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform3.setPhysicsObject(plat3P);
+
+		translation = new Matrix4f(platform4.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		plat4P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform4.setPhysicsObject(plat4P);
+
+		translation = new Matrix4f(platform5.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		plat5P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform5.setPhysicsObject(plat5P);
+
+		translation = new Matrix4f(platform6.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		plat6P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform6.setPhysicsObject(plat6P);
+
+		translation = new Matrix4f(platform7.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		plat7P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform7.setPhysicsObject(plat7P);
+
+		translation = new Matrix4f(platform8.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		plat8P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform8.setPhysicsObject(plat8P);
+
+		translation = new Matrix4f(platform9.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		plat9P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform9.setPhysicsObject(plat9P);
+
+		translation = new Matrix4f(platform10.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		plat10P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		platform10.setPhysicsObject(plat10P);
+
+
+
 		
 
 		StraightMovementController moveController = new StraightMovementController(this, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
@@ -499,13 +581,6 @@ public class MyGame extends VariableFrameRateGame
 		avatar.setLocalLocation(loc.x(), height + 1, loc.z());
 		System.out.println(height);
 
-		// testBox.setLocalLocation(avatar.getLocalLocation().x() + 1, height, avatar.getLocalLocation().z());
-		// double[ ] tempTransform;
-		// Matrix4f translation = new Matrix4f(avatar.getLocalTranslation());
-		// translation.setTranslation(avatar.getLocalLocation().x() + 1, height, avatar.getLocalLocation().z());
-		// tempTransform = toDoubleArray(translation.get(vals));
-
-		// terrHeightP.setTransform(tempTransform);
 
 
 
@@ -685,7 +760,7 @@ public class MyGame extends VariableFrameRateGame
 	}
 	public void avatarJump(int direction) {
 		if (canAvatarJump){
-			avatarP.applyForce(0, 100 * direction, 0, 0, 0, 0);
+			avatarP.applyForce(0, 150 * direction, 0, 0, 0, 0);
 		}
 	}
 
