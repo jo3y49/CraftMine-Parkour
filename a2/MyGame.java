@@ -48,6 +48,7 @@ public class MyGame extends VariableFrameRateGame
 	private AnimatedShape avatarA, shadowS;
 	private ObjShape ghostS, candS, torS, pyrS, sphS, linxS, linyS, linzS;
 	private TextureImage dolT, ghostT, candT, shadowT;
+	private String selectedAvatar;
 
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
@@ -786,6 +787,9 @@ public class MyGame extends VariableFrameRateGame
 		} catch (IOException e){
 			e.printStackTrace();
 		}
+		AvatarSelectionDialog asd = new AvatarSelectionDialog();
+		asd.showIt();
+		selectedAvatar = asd.getSelectedAvatar();
 		if (protClient == null){
 			System.out.println("missing protocol host");
 		} else {

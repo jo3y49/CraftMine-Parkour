@@ -46,6 +46,9 @@ public class DisplaySettingsDialog extends JDialog implements ActionListener
   	private JComboBox displayModeComboBox ;
   	private JLabel currentResolutionLabel;
 
+	private String selectedAvatar = null;
+	private JComboBox<String> avatarComboBox;
+
 	/**
 	 * Creates a DisplaySettingsDialog for the specified GraphicsDevice and
 	 * allows the user to choose desired display mode values.
@@ -88,7 +91,6 @@ public class DisplaySettingsDialog extends JDialog implements ActionListener
 
 		newButton = new JButton("Cancel");
 		newButton.setActionCommand( "Cancel" );
-		newButton.addActionListener(this);
 		buttonPanel.add(newButton);
 		this.add(buttonPanel, "South");
 
