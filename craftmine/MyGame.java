@@ -46,9 +46,9 @@ public class MyGame extends VariableFrameRateGame
 	private Light lightAmb;
 	private boolean lightsOn = true;
 
-	private GameObject avatar, candle, shadow, cubM, tor, torM, sph, sphM, pyr,  x, y, z, ball1, ball2;
+	private GameObject avatar, tor, sph, ball1, ball2;
 	private AnimatedShape avatarA, shadowS;
-	private ObjShape ghostS, candS, torS, pyrS, sphS, linxS, linyS, linzS;
+	private ObjShape ghostS, candS, torS,  sphS;
 	private TextureImage dolT, ghostT, candT, shadowT;
 	private TextureImage avatarTexs[] = new TextureImage[4];
 	private int avatarIndex;
@@ -66,7 +66,7 @@ public class MyGame extends VariableFrameRateGame
 	private GameObject terr;
 	private ObjShape terrS;
 	private TextureImage hills, grass;
-	private int spaceBox, lakeIslands; // skyboxes
+	private int spaceBox; // skyboxes
 
 	//scripting variables
 	private File scriptFile1;
@@ -75,16 +75,14 @@ public class MyGame extends VariableFrameRateGame
 
 	//physics variables
 	private PhysicsEngine physicsEngine;
-	private PhysicsObject ball1P, ball2P, terrP, avatarP, terrHeightP;
+	private PhysicsObject ball1P, ball2P, terrP, avatarP;
 	private boolean running = true;
 	private float vals[] = new float[16];
 	private boolean canAvatarJump = true;
 
 
 	//Platforms
-	private GameObject platform1, platform2, platform3, platform4, platform5, platform6, platform7, platform8, platform9, platform10;
 	private ObjShape platS;
-	private PhysicsObject plat1P, plat2P, plat3P, plat4P, plat5P, plat6P, plat7P, plat8P, plat9P, plat10P;
 	//private TextureImage platform;
 
 	
@@ -124,12 +122,8 @@ public class MyGame extends VariableFrameRateGame
 		candS = new ImportedModel("Candle.obj");
 		shadowS = new AnimatedShape("Player.rkm", "Player.rks");
 		torS = new Torus(.5f, .2f, 48);
-		pyrS = new ManualPyramid();
 		sphS = new Sphere();
 		platS = new Cube();
-		linxS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(5f, 0f, 0f));
-		linyS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 5f, 0f));
-		linzS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 0f, -5f));
 
 		//terrain
 		terrS = new TerrainPlane(1000); // pixels per axis = 1000x1000
@@ -176,19 +170,6 @@ public class MyGame extends VariableFrameRateGame
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
 
-		// candle = new GameObject(GameObject.root(), candS, candT);
-		// initialTranslation = (new Matrix4f()).translation(5,.4f,0);
-		// initialScale = (new Matrix4f()).scaling(1f);
-		// candle.setLocalTranslation(initialTranslation);
-		// candle.setLocalScale(initialScale);
-		
-		// shadow = new GameObject(GameObject.root(), shadowS, shadowT);
-		// initialTranslation = (new Matrix4f()).translation(20,1,-10);
-		// initialScale = (new Matrix4f()).scaling(1f);
-		// shadow.setLocalTranslation(initialTranslation);
-		// shadow.setLocalScale(initialScale);
-		// prizes.add(shadow);
-
 		sph = new GameObject(GameObject.root(), sphS);
 		initialTranslation = (new Matrix4f()).translation(-25,1,-5);
 		initialScale = (new Matrix4f()).scaling(.7f);
@@ -201,63 +182,6 @@ public class MyGame extends VariableFrameRateGame
 		tor.setLocalTranslation(initialTranslation);
 		prizes.add(tor);
 
-		//build pyramid
-		// pyr = new GameObject(GameObject.root(), pyrS);
-		// initialTranslation = (new Matrix4f()).translation(0,2,0);
-		// pyr.setLocalTranslation(initialRotation);
-		// initialScale = (new Matrix4f()).scaling(2f);
-		// pyr.setLocalScale(initialScale);
-		// pyr.getRenderStates().hasLighting(true);
-
-		// cubM = new GameObject(GameObject.root(), shadowS, shadowT);
-		// initialTranslation = (new Matrix4f()).translation(.3f,2,.6f);
-		// cubM.setLocalTranslation(initialTranslation);
-		// initialScale = (new Matrix4f()).scaling(.06f);
-		// cubM.setLocalScale(initialScale);
-		// cubM.getRenderStates().setColor(new Vector3f(1,1,1));
-		// cubM.setParent(pyr);
-		// cubM.propagateTranslation(true);
-		// cubM.propagateRotation(false);
-		// cubM.getRenderStates().disableRendering();
-
-		// sphM = new GameObject(GameObject.root(), sphS);
-		// initialTranslation = (new Matrix4f()).translation(-.6f,2,0);
-		// sphM.setLocalTranslation(initialTranslation);
-		// initialScale = (new Matrix4f()).scaling(.07f);
-		// sphM.setLocalScale(initialScale);
-		// sphM.getRenderStates().setColor(new Vector3f(1,1,1));
-		// sphM.setParent(pyr);
-		// sphM.propagateTranslation(true);
-		// sphM.propagateRotation(false);
-		// sphM.getRenderStates().disableRendering();
-
-		// torM = new GameObject(GameObject.root(), torS);
-		// initialTranslation = (new Matrix4f()).translation(.3f,2,-.6f);
-		// torM.setLocalTranslation(initialTranslation);
-		// initialScale = (new Matrix4f()).scaling(.1f);
-		// torM.setLocalScale(initialScale);
-		// torM.getRenderStates().setColor(new Vector3f(1,1,1));
-		// torM.setParent(pyr);
-		// torM.propagateTranslation(true);
-		// torM.propagateRotation(false);
-		// torM.getRenderStates().disableRendering();
-
-		// ground = new GameObject(GameObject.root(), groundS);
-		// initialTranslation = (new Matrix4f()).translation(0,0,0);
-		// ground.setLocalTranslation(initialTranslation);
-		// initialScale = (new Matrix4f()).scaling(50f);
-		// ground.setLocalScale(initialScale);
-
-		// add X, Y, -Z axes
-		x = new GameObject(GameObject.root(), linxS);
-		y = new GameObject(GameObject.root(), linyS);
-		z = new GameObject(GameObject.root(), linzS);
-		(x.getRenderStates()).setColor(new Vector3f(1f,1f,0f));
-		(y.getRenderStates()).setColor(new Vector3f(0f,1f,0f));
-		(z.getRenderStates()).setColor(new Vector3f(0f,0f,1f));
-		(x.getRenderStates()).disableRendering();
-		(y.getRenderStates()).disableRendering();
-		(z.getRenderStates()).disableRendering();
 
 		// -------------- adding two Spheres -----------------
 		ball1 = new GameObject(GameObject.root(), sphS, candT);
@@ -290,6 +214,7 @@ public class MyGame extends VariableFrameRateGame
 	private void createPlatform(float x, float y, float z) {
 		GameObject platform = new GameObject(GameObject.root(), platS, grass);
 		platform.setLocalTranslation((new Matrix4f()).translation(x,y,z));
+		platform.setLocalScale(new Matrix4f().scaling(1.5f, 1.5f, 1.5f));
 		GameObject candle = new GameObject(platform, candS, candT);
 		platforms.add(platform);
 		candles.add(candle);
@@ -464,7 +389,7 @@ public class MyGame extends VariableFrameRateGame
 		//makes it so avatar doesn't disable for being idle too long
 		avatarP.getRigidBody().setActivationState(CollisionObject.DISABLE_DEACTIVATION);
 
-		float[] sizePlat = {2,2,2};
+		float[] sizePlat = {3,3,3};
 
 		for (int i = 0; i < platforms.size(); i++) {
 			translation = new Matrix4f(platforms.get(i).getLocalTranslation());
@@ -621,32 +546,6 @@ public class MyGame extends VariableFrameRateGame
 		} 
 	}
 
-	// private void checkPrizeCollision()
-	// {
-	// 	for (int i = 0; i < prizes.size(); i++)
-	// 	{
-	// 		if (avatar.getWorldLocation().distance(prizes.get(i).getLocalLocation()) <= 3f)
-	// 		{
-	// 			rc.addTarget(prizes.get(i));
-	// 			fc.addTarget(prizes.get(i));
-	// 			GameObject mini = new GameObject(GameObject.root());
-
-	// 			if (prizes.get(i) == shadow)
-	// 				mini = cubM;
-	// 			else if (prizes.get(i) == tor)
-	// 				mini = torM;
-	// 			else if (prizes.get(i) == sph)
-	// 				mini = sphM;
-
-	// 			collectedPrizes.add(mini);
-	// 			mini.getRenderStates().enableRendering();
-				
-	// 			prizes.remove(i);
-	// 			if (prizes.size() == 0)
-	// 				rc.addTarget(pyr);
-	// 		}
-	// 	}
-	// }
 
 	private void activatePrize(GameObject prize, double speed, float location)
 	{

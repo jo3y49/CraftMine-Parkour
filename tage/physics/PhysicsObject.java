@@ -185,6 +185,11 @@ public interface PhysicsObject {
 	 */
 	public void applyTorque(float fx, float fy, float fz);
 
+	/**
+	 * gets the rigid body of the given physics object
+	 * 
+	 * 
+	 */
 	public RigidBody getRigidBody();
 
 }
