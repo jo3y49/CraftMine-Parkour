@@ -83,7 +83,9 @@ public class MyGame extends VariableFrameRateGame
 
 	//Platforms
 	private ObjShape platS;
-	//private TextureImage platform;
+	private GameObject vicPlat1, vicPlat2, vicPlat3, vicPlat4;
+	private PhysicsObject vicPlat1P, vicPlat2P, vicPlat3P, vicPlat4P;
+
 
 	
 
@@ -210,6 +212,24 @@ public class MyGame extends VariableFrameRateGame
 		createPlatform(-5, 16, 0);
 		createPlatform(19, 18, -18);
 		createPlatform(10, 20, 10);
+
+		//victory platforms
+		vicPlat1 = new GameObject(GameObject.root(), platS, grass);
+		vicPlat1.setLocalTranslation((new Matrix4f()).translation(1.5f,24,1.5f));
+		vicPlat1.setLocalScale(new Matrix4f().scaling(1.5f, 1.5f, 1.5f));
+
+		vicPlat2 = new GameObject(GameObject.root(), platS, grass);
+		vicPlat2.setLocalTranslation((new Matrix4f()).translation(-1.5f,24,1.5f));
+		vicPlat2.setLocalScale(new Matrix4f().scaling(1.5f, 1.5f, 1.5f));
+
+		vicPlat3 = new GameObject(GameObject.root(), platS, grass);
+		vicPlat3.setLocalTranslation((new Matrix4f()).translation(1.5f,24,-1.5f));
+		vicPlat3.setLocalScale(new Matrix4f().scaling(1.5f, 1.5f, 1.5f));
+
+		vicPlat4 = new GameObject(GameObject.root(), platS, grass);
+		vicPlat4.setLocalTranslation((new Matrix4f()).translation(-1.5f,24,-1.5f));
+		vicPlat4.setLocalScale(new Matrix4f().scaling(1.5f, 1.5f, 1.5f));
+
 	}
 	private void createPlatform(float x, float y, float z) {
 		GameObject platform = new GameObject(GameObject.root(), platS, grass);
@@ -390,6 +410,31 @@ public class MyGame extends VariableFrameRateGame
 		avatarP.getRigidBody().setActivationState(CollisionObject.DISABLE_DEACTIVATION);
 
 		float[] sizePlat = {3,3,3};
+
+		translation = new Matrix4f(vicPlat1.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		vicPlat1P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		vicPlat1.setPhysicsObject(vicPlat1P);
+
+		translation = new Matrix4f(vicPlat2.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		vicPlat2P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		vicPlat2.setPhysicsObject(vicPlat2P);
+
+
+		translation = new Matrix4f(vicPlat3.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		vicPlat3P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		vicPlat3.setPhysicsObject(vicPlat3P);
+
+
+		translation = new Matrix4f(vicPlat4.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		vicPlat4P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
+		vicPlat4.setPhysicsObject(vicPlat4P);
+
+
+
 
 		for (int i = 0; i < platforms.size(); i++) {
 			translation = new Matrix4f(platforms.get(i).getLocalTranslation());
