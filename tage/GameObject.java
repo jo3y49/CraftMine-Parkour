@@ -314,6 +314,9 @@ public class GameObject
 	/** returns a right-facing Vector3f based on the world rotation matrix */
 	public Vector3f getWorldRightVector() { return (new Vector3f(worldRotation.getColumn(0, v))).negate(); }
 
+	/** returns a left-facing Vector3f based on the world rotation matrix */
+	public Vector3f getWorldLeftVector() { return new Vector3f(worldRotation.getColumn(0, v)); }
+
 	/** returns the location of this object relative to its parent node */
 	public Vector3f getLocalLocation() { return new Vector3f(localTranslation.getTranslation(v)); }
 

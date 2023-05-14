@@ -58,7 +58,7 @@ public class CameraOrbit3D{
 
     public void updateCameraPosition()
     {
-        Vector3f avatarRot = avatar.getWorldRightVector();
+        Vector3f avatarRot = avatar.getWorldLeftVector();
         double avatarAngle = Math.toDegrees((double) avatarRot.angleSigned(new Vector3f(0,0,-1), new Vector3f(0,1,0)));
         float totalAz = cameraAzimuth - (float) avatarAngle;
         double theta = Math.toRadians(totalAz);

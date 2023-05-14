@@ -66,7 +66,7 @@ public class MyGame extends VariableFrameRateGame
 	private GameObject terr;
 	private ObjShape terrS;
 	private TextureImage hills, grass;
-	private int fluffyClouds, lakeIslands; // skyboxes
+	private int spaceBox, lakeIslands; // skyboxes
 
 	//scripting variables
 	private File scriptFile1;
@@ -147,7 +147,7 @@ public class MyGame extends VariableFrameRateGame
 		hills = new TextureImage("Hills.png");
 		grass = new TextureImage("Grass.jpg");
 
-		String[] avatars = {"Candle.png", "Hills.png", "Cube_Decoration.png", "Dolphin_HighPolyUV.png"};
+		String[] avatars = {"avatarUVskin1.png", "avatarUVskin2.png", "avatarUVskin3.png", "Dolphin_HighPolyUV.png"};
 
 		for (int i = 0; i < avatarTexs.length; i++){
 			avatarTexs[i] = new TextureImage(avatars[i]);
@@ -157,9 +157,10 @@ public class MyGame extends VariableFrameRateGame
 	//skybox load
 	@Override
 	public void loadSkyBoxes()
-	{ fluffyClouds = (engine.getSceneGraph()).loadCubeMap("fluffyClouds");
-	lakeIslands = (engine.getSceneGraph()).loadCubeMap("lakeIslands");
-	(engine.getSceneGraph()).setActiveSkyBoxTexture(fluffyClouds);
+	{ spaceBox = (engine.getSceneGraph()).loadCubeMap("space");
+	
+	
+	(engine.getSceneGraph()).setActiveSkyBoxTexture(spaceBox);
 	(engine.getSceneGraph()).setSkyBoxEnabled(true);
 	}
 
@@ -495,7 +496,7 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.D, yawRight);
 		setHeldActionToKeyboard(Key.SPACE, jump);
 		setHeldActionToKeyboard(Key.X, jumpDown);
-		setPressedActionToKeyboard(Key.L, toggleLight);
+		setPressedActionToKeyboard(Key.P, toggleLight);
 		setPressedActionToKeyboard(Key.ESCAPE, quit);
 		setPressedActionToKeyboard(Key.Q, increaseSpeed);
 		setPressedActionToKeyboard(Key.E, decreaseSpeed);
@@ -738,7 +739,7 @@ public class MyGame extends VariableFrameRateGame
 		} catch (IOException e){
 			e.printStackTrace();
 		}
-		// selectAvatar();
+		selectAvatar();
 		if (protClient == null){
 			System.out.println("missing protocol host");
 		} else {
