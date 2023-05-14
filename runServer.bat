@@ -1,1 +1,1 @@
-java a2/Server/NetworkingServer 6010
+java craftmine/Server/NetworkingServer 6010
