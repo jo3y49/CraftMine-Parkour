@@ -80,9 +80,9 @@ public class MyGame extends VariableFrameRateGame
 	private float vals[] = new float[16];
 
 	//gameplay variables
-	private boolean canAvatarJump = true;
-	private boolean canAvatarWin = false;
-	private int points = 0;
+	private boolean canAvatarJump = (boolean)(jsEngine.get("canAvatarJump"));
+	private boolean canAvatarWin = true;
+	private int points = (int)(jsEngine.get("points"));
 
 
 	//Platforms
@@ -171,7 +171,7 @@ public class MyGame extends VariableFrameRateGame
 
 		// build dolphin in the center of the window
 		avatar = new GameObject(GameObject.root(), avatarA, dolT);
-		initialTranslation = (new Matrix4f()).translation(0,1,-10);
+		initialTranslation = (new Matrix4f()).translation(20,1,-20);
 		initialScale = (new Matrix4f()).scaling(.5f);
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
