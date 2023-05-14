@@ -54,6 +54,8 @@ public class MyGame extends VariableFrameRateGame
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
 	
+	private int avatarMoveSpeed = 50;
+	
 	// terrain/skybox variables
 	private GameObject terr;
 	private ObjShape terrS;
@@ -133,7 +135,7 @@ public class MyGame extends VariableFrameRateGame
 		dolT = new TextureImage("Dolphin_HighPolyUV.png");
 		ghostT = new TextureImage("Candle.png");
 		candT = new TextureImage("Candle.png");
-		shadowT = new TextureImage("Cube_Decoration.png");
+		shadowT = new TextureImage("AItexture.png");
 
 		//Need to make hill/grass textures
 		hills = new TextureImage("Hills.png");
@@ -549,6 +551,8 @@ public class MyGame extends VariableFrameRateGame
 
 		Jump jump = new Jump(this, 1);
 		Jump jumpDown = new Jump(this, -1);
+		moveSpeed increaseSpeed = new moveSpeed(this, 1);
+		moveSpeed decreaseSpeed = new moveSpeed(this, -1);
 
 		Quit quit = new Quit(this);
 
@@ -568,6 +572,8 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.SPACE, jump);
 		setHeldActionToKeyboard(Key.X, jumpDown);
 		setPressedActionToKeyboard(Key.ESCAPE, quit);
+		setPressedActionToKeyboard(Key.Q, increaseSpeed);
+		setPressedActionToKeyboard(Key.E, decreaseSpeed);
 
 		initAudio();
 		setupNetworking();
@@ -586,7 +592,7 @@ public class MyGame extends VariableFrameRateGame
 
 
 		avatar.setLocalLocation(loc.x(), height + 1, loc.z());
-		System.out.println(height);
+		
 
 
 
@@ -615,7 +621,7 @@ public class MyGame extends VariableFrameRateGame
 		String collectedStr = Integer.toString(collectedPrizes.size());
 		String dispStr1 = "Collected Prizes = " + collectedStr;
 
-		String dispStr2 = avatar.getWorldLocation().toString();
+		String dispStr2 =  "Current speed: " + String.valueOf(avatarMoveSpeed);
 
 		Vector3f hudColor = new Vector3f(1,1,1);
 
@@ -678,13 +684,10 @@ public class MyGame extends VariableFrameRateGame
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0.0f) {
 					// System.out.println("---- hit between " + obj1 + " and " + obj2);
-
-					// if collison between avatar and ground
 					if (avatarP.getUID() == obj1.getUID() || avatarP.getUID() == obj2.getUID())
 					{
 						canAvatarJump = true;
 					}
-					// isphysicsobject = false
 					break;
 				} 
 			} 
@@ -755,15 +758,19 @@ public class MyGame extends VariableFrameRateGame
 	public float getFrameTime() { return (float)(currFrameTime - lastFrameTime); }
 	public ObjShape getNPCShape() { return shadowS; }
 	public TextureImage getNPCTexture() { return shadowT; }
+	public void increaseAvatarMoveSpeed() { avatarMoveSpeed += 10;}
+	public void decreaseAvatarMoveSpeed() { avatarMoveSpeed -= 10;}
+	public void stopAvatarJump() {canAvatarJump = false;}
 	public void avatarPhysics(float movement) { 
 
 
-		int forceAmt = 100;
 		Vector3f camPos = new Vector3f(orbitController.getCamPosition());//get cam pos
 		Vector3f direction = new Vector3f(avatar.getLocalLocation());
 		direction.sub(camPos);
 		
-		avatarP.applyForce(direction.x*movement*forceAmt, 0, direction.z*movement*forceAmt, 0, 0, 0);
+
+		//System.out.println("movespeed:" + avatarMoveSpeed);
+		avatarP.applyForce(direction.x*movement*avatarMoveSpeed, 0, direction.z*movement*avatarMoveSpeed, 0, 0, 0);
 	}
 	public void avatarJump(int direction) {
 		if (canAvatarJump){
@@ -778,7 +785,6 @@ public class MyGame extends VariableFrameRateGame
 	public GhostManager getGhostManager() { return gm; }
 	public ProtocolClient getProtClient() { return protClient; } 
 	public boolean getIsClientConnected() { return isClientConnected; }
-	public void stopAvatarJump() {canAvatarJump = false;}
 
 	public void handleAvatarAnimation(String a) { 
 		if (avatarA.getCurAnimation() == null)

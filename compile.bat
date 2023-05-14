@@ -1,4 +1,4 @@
-javac tage\*.java
+@REM javac tage\*.java
 @REM javac tage\input\*.java
 @REM javac tage\input\action\*.java
 @REM javac tage\networking\*.java
@@ -12,4 +12,4 @@ javac tage\*.java
 @REM javac tage\ai\behaviortrees\*.java
 @REM javac tage\audio\*.java
 @REM javac tage\audio\joal\*.java
-@REM javac -Xlint:unchecked a2/*.java
+javac -Xlint:unchecked a2/*.java
