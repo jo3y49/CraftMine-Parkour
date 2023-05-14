@@ -1,2 +1,2 @@
-javac a2/Server/*.java
-javac a2/Server/AIAction/*.java
+javac craftmine/Server/*.java
+javac craftmine/Server/AIAction/*.java
