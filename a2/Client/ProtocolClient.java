@@ -216,6 +216,7 @@ public class ProtocolClient extends GameConnectionClient
 			message += "," + position.x();
 			message += "," + position.y();
 			message += "," + position.z();
+			message += "," + game.getAvatarIndex();
 			
 			sendPacket(message);
 		} catch (IOException e) 

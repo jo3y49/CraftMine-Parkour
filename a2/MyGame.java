@@ -112,7 +112,7 @@ public class MyGame extends VariableFrameRateGame
 	public void loadShapes()
 	{	avatarA = new AnimatedShape("Player.rkm", "Player.rks");
 		avatarA.loadAnimation("walk", "Player.rka");
-		ghostS = new ImportedModel("Candle.obj");
+		ghostS = new AnimatedShape("Player.rkm", "Player.rks");
 		candS = new ImportedModel("Candle.obj");
 		shadowS = new AnimatedShape("Player.rkm", "Player.rks");
 		torS = new Torus(.5f, .2f, 48);
@@ -164,10 +164,8 @@ public class MyGame extends VariableFrameRateGame
 		avatar = new GameObject(GameObject.root(), avatarA, dolT);
 		initialTranslation = (new Matrix4f()).translation(0,1,-10);
 		initialScale = (new Matrix4f()).scaling(.5f);
-		// initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(135f));
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
-		// avatar.setLocalRotation(initialRotation);
 
 		candle = new GameObject(GameObject.root(), candS, candT);
 		initialTranslation = (new Matrix4f()).translation(5,.4f,0);
@@ -361,26 +359,14 @@ public class MyGame extends VariableFrameRateGame
 	public void createViewports()
 	{
 		(engine.getRenderSystem()).addViewport("MAIN", 0, 0, 1f, 1f);
-		(engine.getRenderSystem()).addViewport("SMALL", .75f, 0, .25f, .25f);
 
 		Viewport leftVP = (engine.getRenderSystem()).getViewport("MAIN");
-		Viewport rightVP = (engine.getRenderSystem()).getViewport("SMALL");
 		Camera leftCamera = leftVP.getCamera();
-		Camera rightCamera = rightVP.getCamera();
-
-		rightVP.setHasBorder(true);
-		rightVP.setBorderWidth(2);
-		rightVP.setBorderColor(0, 0, 1);
 
 		leftCamera.setLocation(new Vector3f(0,0,0));
 		leftCamera.setU(new Vector3f(1,0,0));
 		leftCamera.setV(new Vector3f(0,1,0));
 		leftCamera.setN(new Vector3f(0,0,1));
-
-		rightCamera.setLocation(new Vector3f(0,5,0));
-		rightCamera.setU(new Vector3f(1,0,0));
-		rightCamera.setV(new Vector3f(0,0,-1));
-		rightCamera.setN(new Vector3f(0,-1,0));
 	}
 
 	//run script method
@@ -429,7 +415,6 @@ public class MyGame extends VariableFrameRateGame
 		im = engine.getInputManager();
 
 		Camera cM = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
-		Camera cS = (engine.getRenderSystem()).getViewport("SMALL").getCamera();
 
 		orbitController = new CameraOrbit3D(cM, avatar, terr, engine);
 
@@ -540,13 +525,6 @@ public class MyGame extends VariableFrameRateGame
 		Yaw yawLeft = new Yaw(this, true, ((Double) jsEngine.get("YawMoveSpeedWeight")).floatValue());
 		Yaw yawRight = new Yaw(this, false, ((Double) jsEngine.get("YawMoveSpeedWeight")).floatValue());
 
-		CameraMovement moveCamIn = new CameraMovement(cS, this, "in");
-		CameraMovement moveCamOut = new CameraMovement(cS, this, "out");
-		CameraMovement moveCamUp = new CameraMovement(cS, this, "up");
-		CameraMovement moveCamDown = new CameraMovement(cS, this, "down");
-		CameraMovement moveCamLeft = new CameraMovement(cS, this, "left");
-		CameraMovement moveCamRight = new CameraMovement(cS, this, "right");
-
 		Jump jump = new Jump(this, 1);
 		Jump jumpDown = new Jump(this, -1);
 
@@ -559,12 +537,6 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.S, moveBackward);
 		setHeldActionToKeyboard(Key.A, yawLeft);
 		setHeldActionToKeyboard(Key.D, yawRight);
-		setHeldActionToKeyboard(Key.T, moveCamIn);
-		setHeldActionToKeyboard(Key.G, moveCamOut);
-		setHeldActionToKeyboard(Key.UP, moveCamUp);
-		setHeldActionToKeyboard(Key.DOWN, moveCamDown);
-		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
-		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
 		setHeldActionToKeyboard(Key.SPACE, jump);
 		setHeldActionToKeyboard(Key.X, jumpDown);
 		setPressedActionToKeyboard(Key.ESCAPE, quit);
@@ -794,7 +766,7 @@ public class MyGame extends VariableFrameRateGame
 		} catch (IOException e){
 			e.printStackTrace();
 		}
-		selectAvatar();
+		// selectAvatar();
 		if (protClient == null){
 			System.out.println("missing protocol host");
 		} else {
