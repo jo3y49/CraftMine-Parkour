@@ -41,7 +41,6 @@ public class MyGame extends VariableFrameRateGame
 	private GhostManager gm;
 	private double lastFrameTime, currFrameTime, timePerFrame;
 
-	private NodeController rc, fc;
 	private CameraOrbit3D orbitController;
 	private Light lightAmb;
 	private boolean lightsOn = true;
@@ -53,14 +52,12 @@ public class MyGame extends VariableFrameRateGame
 	private TextureImage avatarTexs[] = new TextureImage[4];
 	private int avatarIndex;
 
-	private ArrayList<GameObject> prizes = new ArrayList<>();
-	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
 	private ArrayList<GameObject> platforms = new ArrayList<>();
 	private ArrayList<PhysicsObject> platformsP = new ArrayList<>();
 	private ArrayList<GameObject> candles = new ArrayList<>();
 	private ArrayList<Light> lights = new ArrayList<>();
 	
-	private int avatarMoveSpeed = 50;
+	private int avatarMoveSpeed;
 	
 	// terrain/skybox variables
 	private GameObject terr;
@@ -80,9 +77,9 @@ public class MyGame extends VariableFrameRateGame
 	private float vals[] = new float[16];
 
 	//gameplay variables
-	private boolean canAvatarJump = (boolean)(jsEngine.get("canAvatarJump"));
-	private boolean canAvatarWin = true;
-	private int points = (int)(jsEngine.get("points"));
+	private boolean canAvatarJump;
+	private boolean canAvatarWin;
+	private int points;
 
 
 	//Platforms
@@ -171,22 +168,10 @@ public class MyGame extends VariableFrameRateGame
 
 		// build dolphin in the center of the window
 		avatar = new GameObject(GameObject.root(), avatarA, dolT);
-		initialTranslation = (new Matrix4f()).translation(20,1,-20);
+		initialTranslation = (new Matrix4f()).translation(-20,2,-20);
 		initialScale = (new Matrix4f()).scaling(.5f);
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
-
-		sph = new GameObject(GameObject.root(), sphS);
-		initialTranslation = (new Matrix4f()).translation(-25,1,-5);
-		initialScale = (new Matrix4f()).scaling(.7f);
-		sph.setLocalTranslation(initialTranslation);
-		sph.setLocalScale(initialScale);
-		prizes.add(sph);
-
-		tor = new GameObject(GameObject.root(), torS);
-		initialTranslation = (new Matrix4f()).translation(11, 1, 10);
-		tor.setLocalTranslation(initialTranslation);
-		prizes.add(tor);
 
 
 		// -------------- adding two Spheres -----------------
@@ -356,15 +341,6 @@ public class MyGame extends VariableFrameRateGame
 
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
-		rc = new RotationController(engine, new Vector3f(0,1,0),((Double)(jsEngine.get("RotationControllerSpeed"))).floatValue());
-		fc = new FlyController(engine, ((Double)(jsEngine.get("FlyControllerSpeed"))).floatValue());
-
-		(engine.getSceneGraph()).addNodeController(rc);
-		(engine.getSceneGraph()).addNodeController(fc);
-
-		rc.toggle();
-		fc.toggle();
-
 		im = engine.getInputManager();
 
 		Camera cM = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
@@ -378,8 +354,14 @@ public class MyGame extends VariableFrameRateGame
 		physicsEngine.initSystem();
 		physicsEngine.setGravity(gravity);
 
+		canAvatarJump = (boolean)(jsEngine.get("canAvatarJump"));
+		canAvatarWin = (boolean)(jsEngine.get("canAvatarWin"));
+		points = (int)(jsEngine.get("points"));
+		lightsOn = (boolean)(jsEngine.get("lightsOn"));
+		avatarMoveSpeed = (int)(jsEngine.get("avatarMoveSpeed"));
+
 		// --- create physics world ---
-		float mass = 1.0f;
+		float mass = ((Double) jsEngine.get("gravityMass")).floatValue();
 		float up[ ] = {0,1,0};
 		double[ ] tempTransform;
 
