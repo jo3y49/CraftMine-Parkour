@@ -68,7 +68,8 @@ public class GameServer  extends GameConnectionServer<UUID> {
         {	UUID clientID = UUID.fromString(messageTokens[1]);
             UUID remoteID = UUID.fromString(messageTokens[2]);
             String[] pos = {messageTokens[3], messageTokens[4], messageTokens[5]};
-            sendDetailsForMessage(clientID, remoteID, pos);
+            String i = messageTokens[6];
+            sendDetailsForMessage(clientID, remoteID, pos, i);
         }
         
         // MOVE --- Case where server receives a move message
@@ -168,12 +169,13 @@ public class GameServer  extends GameConnectionServer<UUID> {
 	// remoteId is used to send this message to the proper client. 
 	// Message Format: (dsfr,remoteId,x,y,z) where x, y, and z represent the position.
 
-	public void sendDetailsForMessage(UUID clientID, UUID remoteId, String[] position)
+	public void sendDetailsForMessage(UUID clientID, UUID remoteId, String[] position, String tex)
 	{	try 
 		{	String message = new String("dsfr," + remoteId.toString());
 			message += "," + position[0];
 			message += "," + position[1];
 			message += "," + position[2];	
+            message += "," + tex;
 			sendPacket(message, clientID);
 		} 
 		catch (IOException e) 

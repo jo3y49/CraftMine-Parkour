@@ -57,6 +57,8 @@ public class SceneGraph
 	/** adds the specified Light object to the LightManager for rendering. */
 	public void addLight(Light light) { (engine.getLightManager()).addLight(light); }
 
+	public void removeLight(Light light) { (engine.getLightManager()).removeLight(light); }
+
 	// -------------- NODE CONTROLLER SECTION -------------------
 
 	/** adds the specified node controller for use in the game. */

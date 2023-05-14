@@ -6,6 +6,7 @@ import a2.Client.*;
 
 //tage imports
 import tage.*;
+import tage.Light.LightType;
 import tage.audio.*;
 import tage.shapes.*;
 import tage.input.*;
@@ -38,11 +39,12 @@ public class MyGame extends VariableFrameRateGame
 	private static Engine engine;
 	private InputManager im;
 	private GhostManager gm;
-	private double lastFrameTime, currFrameTime, elapsTime;
+	private double lastFrameTime, currFrameTime, timePerFrame;
 
 	private NodeController rc, fc;
 	private CameraOrbit3D orbitController;
 	private Light lightAmb;
+	private boolean lightsOn = true;
 
 	private GameObject avatar, candle, shadow, cubM, tor, torM, sph, sphM, pyr,  x, y, z, ball1, ball2;
 	private AnimatedShape avatarA, shadowS;
@@ -53,6 +55,10 @@ public class MyGame extends VariableFrameRateGame
 
 	private ArrayList<GameObject> prizes = new ArrayList<>();
 	private ArrayList<GameObject> collectedPrizes = new ArrayList<>();
+	private ArrayList<GameObject> platforms = new ArrayList<>();
+	private ArrayList<PhysicsObject> platformsP = new ArrayList<>();
+	private ArrayList<GameObject> candles = new ArrayList<>();
+	private ArrayList<Light> lights = new ArrayList<>();
 	
 	private int avatarMoveSpeed = 50;
 	
@@ -114,7 +120,7 @@ public class MyGame extends VariableFrameRateGame
 	public void loadShapes()
 	{	avatarA = new AnimatedShape("Player.rkm", "Player.rks");
 		avatarA.loadAnimation("walk", "Player.rka");
-		ghostS = new ImportedModel("Candle.obj");
+		ghostS = new AnimatedShape("Player.rkm", "Player.rks");
 		candS = new ImportedModel("Candle.obj");
 		shadowS = new AnimatedShape("Player.rkm", "Player.rks");
 		torS = new Torus(.5f, .2f, 48);
@@ -166,16 +172,14 @@ public class MyGame extends VariableFrameRateGame
 		avatar = new GameObject(GameObject.root(), avatarA, dolT);
 		initialTranslation = (new Matrix4f()).translation(0,1,-10);
 		initialScale = (new Matrix4f()).scaling(.5f);
-		// initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(135f));
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
-		// avatar.setLocalRotation(initialRotation);
 
-		candle = new GameObject(GameObject.root(), candS, candT);
-		initialTranslation = (new Matrix4f()).translation(5,.4f,0);
-		initialScale = (new Matrix4f()).scaling(1f);
-		candle.setLocalTranslation(initialTranslation);
-		candle.setLocalScale(initialScale);
+		// candle = new GameObject(GameObject.root(), candS, candT);
+		// initialTranslation = (new Matrix4f()).translation(5,.4f,0);
+		// initialScale = (new Matrix4f()).scaling(1f);
+		// candle.setLocalTranslation(initialTranslation);
+		// candle.setLocalScale(initialScale);
 		
 		// shadow = new GameObject(GameObject.root(), shadowS, shadowT);
 		// initialTranslation = (new Matrix4f()).translation(20,1,-10);
@@ -271,46 +275,23 @@ public class MyGame extends VariableFrameRateGame
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
 
-		//building platforms
-		platform1 = new GameObject(GameObject.root(), platS, grass);
-		platform1.setLocalTranslation((new Matrix4f()).translation(10, 2, 10));
-		platform1.setLocalScale((new Matrix4f()).scaling(1));
-
-		platform2 = new GameObject(GameObject.root(), platS, grass);
-		platform2.setLocalTranslation((new Matrix4f()).translation(-10, 4, 16));
-		platform2.setLocalScale((new Matrix4f()).scaling(1));
-
-		platform3 = new GameObject(GameObject.root(), platS, grass);
-		platform3.setLocalTranslation((new Matrix4f()).translation(7, 6, -13));
-		platform3.setLocalScale((new Matrix4f()).scaling(1));
-
-		platform4 = new GameObject(GameObject.root(), platS, grass);
-		platform4.setLocalTranslation((new Matrix4f()).translation(18, 8, -9));
-		platform4.setLocalScale((new Matrix4f()).scaling(1));
-
-		platform5 = new GameObject(GameObject.root(), platS, grass);
-		platform5.setLocalTranslation((new Matrix4f()).translation(-19, 10, 20));
-		platform5.setLocalScale((new Matrix4f()).scaling(1));
-
-		platform6 = new GameObject(GameObject.root(), platS, grass);
-		platform6.setLocalTranslation((new Matrix4f()).translation(3, 12, 11));
-		platform6.setLocalScale((new Matrix4f()).scaling(1));
-
-		platform7 = new GameObject(GameObject.root(), platS, grass);
-		platform7.setLocalTranslation((new Matrix4f()).translation(-17, 14, -7));
-		platform7.setLocalScale((new Matrix4f()).scaling(1));
-
-		platform8 = new GameObject(GameObject.root(), platS, grass);
-		platform8.setLocalTranslation((new Matrix4f()).translation(-5, 16, 0));
-		platform8.setLocalScale((new Matrix4f()).scaling(1));
-
-		platform9 = new GameObject(GameObject.root(), platS, grass);
-		platform9.setLocalTranslation((new Matrix4f()).translation(19, 18, -18));
-		platform9.setLocalScale((new Matrix4f()).scaling(1));
-
-		platform10 = new GameObject(GameObject.root(), platS, grass);
-		platform10.setLocalTranslation((new Matrix4f()).translation(10, 20, 10));
-		platform10.setLocalScale((new Matrix4f()).scaling(1));
+		createPlatform(10, 2, 10);
+		createPlatform(-10, 4, 16);
+		createPlatform(7, 6, -13);
+		createPlatform(18, 8, -9);
+		createPlatform(-19, 10, 20);
+		createPlatform(3, 12, 11);
+		createPlatform(-17, 14, -7);
+		createPlatform(-5, 16, 0);
+		createPlatform(19, 18, -18);
+		createPlatform(10, 20, 10);
+	}
+	private void createPlatform(float x, float y, float z) {
+		GameObject platform = new GameObject(GameObject.root(), platS, grass);
+		platform.setLocalTranslation((new Matrix4f()).translation(x,y,z));
+		GameObject candle = new GameObject(platform, candS, candT);
+		platforms.add(platform);
+		candles.add(candle);
 	}
 
 	@Override
@@ -319,6 +300,14 @@ public class MyGame extends VariableFrameRateGame
 		lightAmb = new Light();
 		lightAmb.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
 		(engine.getSceneGraph()).addLight(lightAmb);
+
+		for (int i = 0; i < candles.size(); i++){
+			Light light = new Light();
+			light.setType(LightType.SPOTLIGHT);
+			light.setLocation(candles.get(i).getWorldLocation().add(0,2,0));
+			lights.add(light);
+			(engine.getSceneGraph()).addLight(light);
+		}
 	}
 
 	public void initAudio() {
@@ -363,26 +352,14 @@ public class MyGame extends VariableFrameRateGame
 	public void createViewports()
 	{
 		(engine.getRenderSystem()).addViewport("MAIN", 0, 0, 1f, 1f);
-		(engine.getRenderSystem()).addViewport("SMALL", .75f, 0, .25f, .25f);
 
 		Viewport leftVP = (engine.getRenderSystem()).getViewport("MAIN");
-		Viewport rightVP = (engine.getRenderSystem()).getViewport("SMALL");
 		Camera leftCamera = leftVP.getCamera();
-		Camera rightCamera = rightVP.getCamera();
-
-		rightVP.setHasBorder(true);
-		rightVP.setBorderWidth(2);
-		rightVP.setBorderColor(0, 0, 1);
 
 		leftCamera.setLocation(new Vector3f(0,0,0));
 		leftCamera.setU(new Vector3f(1,0,0));
 		leftCamera.setV(new Vector3f(0,1,0));
 		leftCamera.setN(new Vector3f(0,0,1));
-
-		rightCamera.setLocation(new Vector3f(0,5,0));
-		rightCamera.setU(new Vector3f(1,0,0));
-		rightCamera.setV(new Vector3f(0,0,-1));
-		rightCamera.setN(new Vector3f(0,-1,0));
 	}
 
 	//run script method
@@ -415,7 +392,7 @@ public class MyGame extends VariableFrameRateGame
 		this.runScript(scriptFile1);
 
 		lastFrameTime = currFrameTime = System.currentTimeMillis();
-		elapsTime = 0;
+		timePerFrame = 0;
 
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
@@ -431,7 +408,6 @@ public class MyGame extends VariableFrameRateGame
 		im = engine.getInputManager();
 
 		Camera cM = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
-		Camera cS = (engine.getRenderSystem()).getViewport("SMALL").getCamera();
 
 		orbitController = new CameraOrbit3D(cM, avatar, terr, engine);
 
@@ -477,62 +453,14 @@ public class MyGame extends VariableFrameRateGame
 		//makes it so avatar doesn't disable for being idle too long
 		avatarP.getRigidBody().setActivationState(CollisionObject.DISABLE_DEACTIVATION);
 
-
-		//creating platforms
-		translation = new Matrix4f(platform1.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
 		float[] sizePlat = {2,2,2};
-		plat1P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform1.setPhysicsObject(plat1P);
 
-		translation = new Matrix4f(platform2.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		plat2P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform2.setPhysicsObject(plat2P);
-
-		translation = new Matrix4f(platform3.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		plat3P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform3.setPhysicsObject(plat3P);
-
-		translation = new Matrix4f(platform4.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		plat4P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform4.setPhysicsObject(plat4P);
-
-		translation = new Matrix4f(platform5.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		plat5P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform5.setPhysicsObject(plat5P);
-
-		translation = new Matrix4f(platform6.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		plat6P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform6.setPhysicsObject(plat6P);
-
-		translation = new Matrix4f(platform7.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		plat7P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform7.setPhysicsObject(plat7P);
-
-		translation = new Matrix4f(platform8.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		plat8P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform8.setPhysicsObject(plat8P);
-
-		translation = new Matrix4f(platform9.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		plat9P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform9.setPhysicsObject(plat9P);
-
-		translation = new Matrix4f(platform10.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		plat10P = physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat);
-		platform10.setPhysicsObject(plat10P);
-
-
-
-		
+		for (int i = 0; i < platforms.size(); i++) {
+			translation = new Matrix4f(platforms.get(i).getLocalTranslation());
+			tempTransform = toDoubleArray(translation.get(vals));
+			platformsP.add(physicsEngine.addBoxObject(physicsEngine.nextUID(), 0, tempTransform, sizePlat));
+			platforms.get(i).setPhysicsObject(platformsP.get(i));
+		}
 
 		StraightMovementController moveController = new StraightMovementController(this, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
 		StraightMovement moveForward = new StraightMovement(this, true, ((Double) jsEngine.get("straightMoveSpeedWeight")).floatValue());
@@ -542,17 +470,12 @@ public class MyGame extends VariableFrameRateGame
 		Yaw yawLeft = new Yaw(this, true, ((Double) jsEngine.get("YawMoveSpeedWeight")).floatValue());
 		Yaw yawRight = new Yaw(this, false, ((Double) jsEngine.get("YawMoveSpeedWeight")).floatValue());
 
-		CameraMovement moveCamIn = new CameraMovement(cS, this, "in");
-		CameraMovement moveCamOut = new CameraMovement(cS, this, "out");
-		CameraMovement moveCamUp = new CameraMovement(cS, this, "up");
-		CameraMovement moveCamDown = new CameraMovement(cS, this, "down");
-		CameraMovement moveCamLeft = new CameraMovement(cS, this, "left");
-		CameraMovement moveCamRight = new CameraMovement(cS, this, "right");
-
 		Jump jump = new Jump(this, 1);
 		Jump jumpDown = new Jump(this, -1);
 		moveSpeed increaseSpeed = new moveSpeed(this, 1);
 		moveSpeed decreaseSpeed = new moveSpeed(this, -1);
+
+		ToggleLights toggleLight = new ToggleLights(this);
 
 		Quit quit = new Quit(this);
 
@@ -560,14 +483,9 @@ public class MyGame extends VariableFrameRateGame
 		setHeldActionToKeyboard(Key.S, moveBackward);
 		setHeldActionToKeyboard(Key.A, yawLeft);
 		setHeldActionToKeyboard(Key.D, yawRight);
-		setHeldActionToKeyboard(Key.T, moveCamIn);
-		setHeldActionToKeyboard(Key.G, moveCamOut);
-		setHeldActionToKeyboard(Key.UP, moveCamUp);
-		setHeldActionToKeyboard(Key.DOWN, moveCamDown);
-		setHeldActionToKeyboard(Key.LEFT, moveCamLeft);
-		setHeldActionToKeyboard(Key.RIGHT, moveCamRight);
 		setHeldActionToKeyboard(Key.SPACE, jump);
 		setHeldActionToKeyboard(Key.X, jumpDown);
+		setPressedActionToKeyboard(Key.L, toggleLight);
 		setPressedActionToKeyboard(Key.ESCAPE, quit);
 		setPressedActionToKeyboard(Key.Q, increaseSpeed);
 		setPressedActionToKeyboard(Key.E, decreaseSpeed);
@@ -593,7 +511,7 @@ public class MyGame extends VariableFrameRateGame
 	{	
 		lastFrameTime = currFrameTime;
 		currFrameTime = System.currentTimeMillis();
-		elapsTime += (currFrameTime - lastFrameTime) / 1000.0;
+		timePerFrame += (currFrameTime - lastFrameTime) / 1000.0;
 
 		// avatar follows terrain map
 		Vector3f loc = avatar.getWorldLocation();
@@ -605,7 +523,12 @@ public class MyGame extends VariableFrameRateGame
 
 
 
-
+		// candle rotation
+		for (int i = 0; i < candles.size(); i++) {
+			candles.get(i).setLocalTranslation(candles.get(i).getLocalTranslation().translate((float)Math.sin(currFrameTime/1000) * .1f, 0.0f, (float)Math.cos(currFrameTime/1000) * .1f));
+			lights.get(i).setLocation(candles.get(i).getWorldLocation());
+			lights.get(i).setDirection(new Vector3f(candles.get(i).getWorldLocation().x(), -10, candles.get(i).getWorldLocation().z()));
+		}
 
 
 
@@ -614,7 +537,7 @@ public class MyGame extends VariableFrameRateGame
 			Matrix4f mat = new Matrix4f();
 			Matrix4f mat2 = new Matrix4f().identity();
 			checkForCollisions();
-			physicsEngine.update((float)elapsTime);
+			physicsEngine.update((float)timePerFrame);
 			for (GameObject go:engine.getSceneGraph().getGameObjects()) { 
 				if (go.getPhysicsObject() != null) {
 					mat.set(toFloatArray(go.getPhysicsObject().getTransform()));
@@ -641,7 +564,7 @@ public class MyGame extends VariableFrameRateGame
 		(engine.getHUDmanager()).setHUD2font(GLUT.BITMAP_HELVETICA_18);
 
 		// update inputs and camera
-		im.update((float)elapsTime);
+		im.update((float)timePerFrame);
 
 		//checkPrizeCollision();
 
@@ -669,7 +592,7 @@ public class MyGame extends VariableFrameRateGame
 
 		avatarA.updateAnimation();
 
-		processNetworking((float)elapsTime);
+		processNetworking((float)timePerFrame);
 		
 	}
 
@@ -733,8 +656,8 @@ public class MyGame extends VariableFrameRateGame
 	private void activatePrize(GameObject prize, double speed, float location)
 	{
 		Matrix4f currentTranslation = prize.getLocalTranslation();
-		currentTranslation.translation((float)Math.sin(Math.toRadians(elapsTime * speed)) * location,
-			2f, (float)Math.cos(Math.toRadians(elapsTime * speed)) * location);
+		currentTranslation.translation((float)Math.sin(Math.toRadians(timePerFrame * speed)) * location,
+			2f, (float)Math.cos(Math.toRadians(timePerFrame * speed)) * location);
 		prize.setLocalTranslation(currentTranslation);
 	}
 
@@ -787,6 +710,17 @@ public class MyGame extends VariableFrameRateGame
 		}
 	}
 
+	public void toggleLights() {
+		if (lightsOn) {
+			for (int i = 0; i < lights.size(); i++)
+				engine.getSceneGraph().removeLight(lights.get(i));
+		} else {
+			for (int i = 0; i < lights.size(); i++)
+				engine.getSceneGraph().addLight(lights.get(i));
+		}
+		lightsOn = !lightsOn;
+	}
+
 	// ------------Networking-----------------------
 
 	public ObjShape getGhostShape() { return ghostS; }
@@ -809,7 +743,7 @@ public class MyGame extends VariableFrameRateGame
 		} catch (IOException e){
 			e.printStackTrace();
 		}
-		selectAvatar();
+		// selectAvatar();
 		if (protClient == null){
 			System.out.println("missing protocol host");
 		} else {
