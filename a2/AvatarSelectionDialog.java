@@ -1,4 +1,4 @@
-package tage;
+package a2;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -6,8 +6,7 @@ import javax.swing.*;
 
 public class AvatarSelectionDialog extends JDialog implements ActionListener
 {
-    private String selectedAvatar = null;
-    private String[] avatarPaths = {"assets/textures/Candle.png", "Avatar 2", "Avatar 3", "Avatar 4"};
+    private String[] avatarPaths = {"assets/textures/pic1.png", "assets/textures/pic2.png", "assets/textures/pic3.png", "assets/textures/pic4.png"};
     private ImageIcon[] avatars;
     private JComboBox<ImageIcon> avatarComboBox;
     private int selectedIndex = 0;
