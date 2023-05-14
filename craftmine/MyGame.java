@@ -78,7 +78,11 @@ public class MyGame extends VariableFrameRateGame
 	private PhysicsObject ball1P, ball2P, terrP, avatarP;
 	private boolean running = true;
 	private float vals[] = new float[16];
+
+	//gameplay variables
 	private boolean canAvatarJump = true;
+	private boolean canAvatarWin = false;
+	private int points = 0;
 
 
 	//Platforms
@@ -531,15 +535,15 @@ public class MyGame extends VariableFrameRateGame
 		}
 
 		// build and set HUD
-		String collectedStr = Integer.toString(collectedPrizes.size());
-		String dispStr1 = "Collected Prizes = " + collectedStr;
+		String collectedStr = Integer.toString(points);
+		String dispStr1 = "Total score = " + collectedStr;
 
 		String dispStr2 =  "Current speed: " + String.valueOf(avatarMoveSpeed);
 
 		Vector3f hudColor = new Vector3f(1,1,1);
 
 		(engine.getHUDmanager()).setHUD1(dispStr1, hudColor, 15, 15);
-		(engine.getHUDmanager()).setHUD2(dispStr2, hudColor, 1500, 15);
+		(engine.getHUDmanager()).setHUD2(dispStr2, hudColor, 250, 15);
 
 		(engine.getHUDmanager()).setHUD1font(GLUT.BITMAP_TIMES_ROMAN_24);
 		(engine.getHUDmanager()).setHUD2font(GLUT.BITMAP_HELVETICA_18);
@@ -584,7 +588,42 @@ public class MyGame extends VariableFrameRateGame
 							landSound.play(20, false);
 						}
 						canAvatarJump = true;
+
+						if (terrP.getUID() == obj1.getUID() || terrP.getUID() == obj2.getUID()){
+							if (!canAvatarWin){
+								canAvatarWin = true;
+							}
+						}						
+						else if (vicPlat1P.getUID() == obj1.getUID() || vicPlat1P.getUID() == obj2.getUID()){
+							if (canAvatarWin){
+								points++;
+								canAvatarWin = false;
+							}
+						}
+						else if (vicPlat2P.getUID() == obj1.getUID() || vicPlat2P.getUID() == obj2.getUID()){
+							if (canAvatarWin){
+								points++;
+								canAvatarWin = false;
+							}
+						}
+						else if (vicPlat3P.getUID() == obj1.getUID() || vicPlat3P.getUID() == obj2.getUID()){
+							if (canAvatarWin){
+								points++;
+								canAvatarWin = false;
+							}
+						}
+						else if (vicPlat4P.getUID() == obj1.getUID() || vicPlat4P.getUID() == obj2.getUID()){
+							if (canAvatarWin){
+								points++;
+								canAvatarWin = false;
+							}
+						}
+
 					}
+
+
+
+
 					break;
 				} 
 			} 
