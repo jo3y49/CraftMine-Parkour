@@ -483,6 +483,7 @@ public class MyGame extends VariableFrameRateGame
 		setHeldButtonToGamepad(Button._1, jumpDown);
 		setPressedButtonToGamepad(Button._4, increaseSpeed);
 		setPressedButtonToGamepad(Button._5, decreaseSpeed);
+		setPressedButtonToGamepad(Button._6, toggleLight);
 
 
 

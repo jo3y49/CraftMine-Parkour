@@ -47,6 +47,9 @@ public class CameraOrbit3D{
                 azmAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
         im.associateActionWithAllGamepads(net.java.games.input.Component.Identifier.Axis.RY,
                 eleAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+        im.associateActionWithAllGamepads(net.java.games.input.Component.Identifier.Button._2, orbIn, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+        im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key._3, orbOut, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+
         
         im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.J, azmLeft, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
         im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.L, azmRight, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
