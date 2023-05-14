@@ -98,7 +98,7 @@ public class MyGame extends VariableFrameRateGame
 
 	//audio variables
 	private IAudioManager audioMgr;
-	private Sound oceanSound, hereSound;
+	private Sound birdSound, landSound, jumpSound;
 
 
 	public MyGame(String serverAddress, int serverPort) { 
@@ -311,7 +311,7 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public void initAudio() {
-		AudioResource resource1, resource2;
+		AudioResource resource1, resource2, resource3, resource4;
 		audioMgr = AudioManagerFactory.createAudioManager(
 		"tage.audio.joal.JOALAudioManager");
 		if (!audioMgr.initialize())
@@ -319,26 +319,36 @@ public class MyGame extends VariableFrameRateGame
 		return;
 		}
 		resource1 = audioMgr.createAudioResource(
-		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
-		resource2 = audioMgr.createAudioResource(
-		"assets/sounds/rushing water.wav", AudioResourceType.AUDIO_SAMPLE);
-		hereSound = new Sound(resource1,
-		SoundType.SOUND_EFFECT, 100, true);
-		oceanSound = new Sound(resource2,
-		SoundType.SOUND_EFFECT, 500, true);
-		hereSound.initialize(audioMgr);
-		oceanSound.initialize(audioMgr);
+		"assets/sounds/birds.wav", AudioResourceType.AUDIO_SAMPLE);
+		birdSound = new Sound(resource1,
+		SoundType.SOUND_EFFECT, 20, true);
+		birdSound.initialize(audioMgr);
 		setEarParameters();
-		hereSound.setMaxDistance(10.0f);
-		hereSound.setMinDistance(0.5f);
-		hereSound.setRollOff(5.0f);
-		oceanSound.setMaxDistance(20.0f);
-		oceanSound.setMinDistance(0.5f);
-		oceanSound.setRollOff(10.0f);
-		hereSound.setLocation(avatar.getWorldLocation());
-		oceanSound.play();
-		// hereSound.play();
-		
+		birdSound.setMaxDistance(20.0f);
+		birdSound.setMinDistance(0.5f);
+		birdSound.setRollOff(10.0f);
+		birdSound.play();
+
+
+		//making jumping and landing sound
+		resource3 = audioMgr.createAudioResource(
+		"assets/sounds/jump.wav", AudioResourceType.AUDIO_SAMPLE);
+		resource4 = audioMgr.createAudioResource(
+		"assets/sounds/landing.wav", AudioResourceType.AUDIO_SAMPLE);
+		jumpSound = new Sound(resource3,
+		SoundType.SOUND_EFFECT, 50, true);
+		landSound = new Sound(resource4,
+		SoundType.SOUND_EFFECT, 50, true);
+		jumpSound.initialize(audioMgr);
+		landSound.initialize(audioMgr);
+		jumpSound.setMaxDistance(10.0f);
+		jumpSound.setMinDistance(0.5f);
+		jumpSound.setRollOff(5.0f);
+		landSound.setMaxDistance(10.0f);
+		landSound.setMinDistance(0.5f);
+		landSound.setRollOff(5.0f);
+		jumpSound.setLocation(avatar.getWorldLocation());
+		landSound.setLocation(avatar.getWorldLocation());
 	}
 
 	public void setEarParameters() {
@@ -566,34 +576,15 @@ public class MyGame extends VariableFrameRateGame
 		// update inputs and camera
 		im.update((float)timePerFrame);
 
-		//checkPrizeCollision();
-
-		// double spinSpeed = 30;
-		// float spinDistance = 1;
-
-		//double spinSpeed = (Double) (jsEngine.get("spinSpeed"));
-		//float spinDistance = ((Double) jsEngine.get("spinDistance")).floatValue();
-
-		// for (int i = 0; i < collectedPrizes.size(); i++)
-		// 	{
-		// 		activatePrize(collectedPrizes.get(i), spinSpeed, spinDistance);
-		// 		spinSpeed += 20;
-		// 		spinDistance += .5f;
-		// 	}
-
 		orbitController.updateCameraPosition();
 
 		// hereSound.setLocation(avatar.getWorldLocation());
-		try {
-			oceanSound.setLocation(gm.getGhostNPC(0).getWorldLocation());
-		} catch (Exception e){}
+		jumpSound.setLocation(avatar.getWorldLocation());
+		landSound.setLocation(avatar.getWorldLocation());
 		
 		setEarParameters();
-
 		avatarA.updateAnimation();
-
 		processNetworking((float)timePerFrame);
-		
 	}
 
 	private void checkForCollisions() {
@@ -618,6 +609,9 @@ public class MyGame extends VariableFrameRateGame
 					// System.out.println("---- hit between " + obj1 + " and " + obj2);
 					if (avatarP.getUID() == obj1.getUID() || avatarP.getUID() == obj2.getUID())
 					{
+						if (canAvatarJump == false && jumpSound.getIsPlaying() == false){
+							landSound.play(20, false);
+						}
 						canAvatarJump = true;
 					}
 					break;
@@ -706,6 +700,7 @@ public class MyGame extends VariableFrameRateGame
 	}
 	public void avatarJump(int direction) {
 		if (canAvatarJump){
+			jumpSound.play(20, false);
 			avatarP.applyForce(0, 150 * direction, 0, 0, 0, 0);
 		}
 	}
