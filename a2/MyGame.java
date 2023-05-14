@@ -556,9 +556,6 @@ public class MyGame extends VariableFrameRateGame
 
 		Quit quit = new Quit(this);
 
-		setHeldButtonToGamepad(Axis.Y, moveController);
-		setHeldButtonToGamepad(Axis.X, YawController);
-
 		setHeldActionToKeyboard(Key.W, moveForward);
 		setHeldActionToKeyboard(Key.S, moveBackward);
 		setHeldActionToKeyboard(Key.A, yawLeft);
@@ -574,6 +571,18 @@ public class MyGame extends VariableFrameRateGame
 		setPressedActionToKeyboard(Key.ESCAPE, quit);
 		setPressedActionToKeyboard(Key.Q, increaseSpeed);
 		setPressedActionToKeyboard(Key.E, decreaseSpeed);
+
+
+
+		setHeldButtonToGamepad(Axis.Y, moveController);
+		setHeldButtonToGamepad(Axis.X, YawController);
+		setHeldButtonToGamepad(Button._0, jump);
+		setHeldButtonToGamepad(Button._1, jumpDown);
+		setPressedButtonToGamepad(Button._4, increaseSpeed);
+		setPressedButtonToGamepad(Button._5, decreaseSpeed);
+
+
+
 
 		initAudio();
 		setupNetworking();
