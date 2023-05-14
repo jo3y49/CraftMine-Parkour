@@ -45,6 +45,10 @@ public class LightManager
 		light.setIndex(lights.size()-1);
 	}
 
+	protected void removeLight(Light light){
+		lights.remove(light);
+	}
+
 	/** returns a reference to the ith Light - not likely to be useful in the game application. */
 	public Light getLight(int i) { return lights.get(i); }
 
