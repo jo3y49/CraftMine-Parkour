@@ -3,6 +3,7 @@ package craftmine;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 
 public class AvatarSelectionDialog extends JDialog implements ActionListener
 {
@@ -28,7 +29,7 @@ public class AvatarSelectionDialog extends JDialog implements ActionListener
 
         // Create a panel containing a drop-down list of available avatars
         JPanel avatarPanel = new JPanel();
-        avatarPanel.setBorder(BorderFactory.createTitledBorder("Choose an avatar:"));
+        avatarPanel.setBorder(BorderFactory.createTitledBorder(null, "Choose an avatar:", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("times new roman",Font.BOLD,24), Color.BLACK));
 
         // Initialize the avatars array
         avatars = new ImageIcon[avatarPaths.length];
@@ -51,6 +52,8 @@ public class AvatarSelectionDialog extends JDialog implements ActionListener
         JButton newButton = new JButton("OK");
         newButton.setActionCommand( "OK" );
         newButton.addActionListener(this);
+        newButton.setFont(new Font("Arial", Font.BOLD, 20));
+
         buttonPanel.add(newButton);
 
         

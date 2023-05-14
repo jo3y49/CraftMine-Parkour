@@ -701,6 +701,12 @@ public class MyGame extends VariableFrameRateGame
 		lightsOn = !lightsOn;
 	}
 
+	public void hitByShadow(Vector3f shadow) {
+		if (avatar.getLocalLocation().distance(shadow) < 2f){
+			avatarPhysics(-10);
+		}
+	}
+
 	// ------------Networking-----------------------
 
 	public ObjShape getGhostShape() { return ghostS; }
