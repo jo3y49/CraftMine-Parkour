@@ -73,6 +73,7 @@ public class GhostManager
 	public void updateGhostNPC(int id, Vector3f position){
 		try {
 			ghostNPCs.get(id).setPosition(position);
+			game.hitByShadow(position);
 		} catch (Exception e) {
 			
 		}
