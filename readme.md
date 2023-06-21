@@ -88,6 +88,6 @@ Sounds from https://pixabay.com
 
 Skybox from https://opengameart.org/content/space-skybox-1
 
-Avatar and enemy model + enemy texture made by Jarod Shavor
+Avatar and enemy model + enemy texture made by [JarodS132](https://github.com/JarodS132)
 
 Candle model and texture + avatar skins made by me
