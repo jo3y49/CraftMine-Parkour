@@ -48,15 +48,15 @@ A 3D platforming game, where the objective is to reach the highest block in the 
 
 A view of the layout
 
-<img src="screenshots\screen1.png"></img>
+<img src="readme screenshots\screen1.png"></img>
 
 The enemies up close!
 
-<img src="screenshots\screen2.png"></img>
+<img src="readme screenshots\screen2.png"></img>
 
 An aerial shot
 
-<img src="screenshots\screen3.png"></img>
+<img src="readme screenshots\screen3.png"></img>
 
 ## How To Run:
 
