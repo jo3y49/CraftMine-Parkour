@@ -7,7 +7,6 @@ import tage.audio.*;
 import tage.shapes.*;
 import tage.input.*;
 import tage.input.action.*;
-import tage.nodeControllers.*;
 import tage.physics.*;
 import tage.physics.JBullet.*;
 import tage.networking.IGameConnection.ProtocolType;
@@ -22,7 +21,6 @@ import com.jogamp.opengl.util.gl2.GLUT;
 
 import craftmine.Client.*;
 import craftmine.Commands.*;
-import craftmine.Shapes.*;
 
 //scripting imports
 import javax.script.ScriptEngine;
@@ -45,11 +43,11 @@ public class MyGame extends VariableFrameRateGame
 	private Light lightAmb;
 	private boolean lightsOn = true;
 
-	private GameObject avatar, tor, sph, ball1, ball2;
+	private GameObject avatar, ball1, ball2;
 	private AnimatedShape avatarA, shadowS;
-	private ObjShape ghostS, candS, torS,  sphS;
-	private TextureImage dolT, ghostT, candT, shadowT;
-	private TextureImage avatarTexs[] = new TextureImage[4];
+	private ObjShape ghostS, candS, sphS;
+	private TextureImage ballT, ghostT, candT, shadowT;
+	private TextureImage avatarTexs[] = new TextureImage[3];
 	private int avatarIndex;
 
 	private ArrayList<GameObject> platforms = new ArrayList<>();
@@ -67,7 +65,6 @@ public class MyGame extends VariableFrameRateGame
 
 	//scripting variables
 	private File scriptFile1;
-	private long fileLastModifiedTime = 0;
 	ScriptEngine jsEngine;
 
 	//physics variables
@@ -124,7 +121,6 @@ public class MyGame extends VariableFrameRateGame
 		ghostS = new AnimatedShape("Player.rkm", "Player.rks");
 		candS = new ImportedModel("Candle.obj");
 		shadowS = new AnimatedShape("Player.rkm", "Player.rks");
-		torS = new Torus(.5f, .2f, 48);
 		sphS = new Sphere();
 		platS = new Cube();
 
@@ -135,7 +131,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadTextures()
 	{	
-		dolT = new TextureImage("Dolphin_HighPolyUV.png");
+		ballT = new TextureImage("Candle.png");
 		ghostT = new TextureImage("Candle.png");
 		candT = new TextureImage("Candle.png");
 		shadowT = new TextureImage("AItexture.png");
@@ -144,7 +140,7 @@ public class MyGame extends VariableFrameRateGame
 		hills = new TextureImage("Hills.png");
 		grass = new TextureImage("Grass.jpg");
 
-		String[] avatars = {"avatarUVskin1.png", "avatarUVskin2.png", "avatarUVskin3.png", "Dolphin_HighPolyUV.png"};
+		String[] avatars = {"avatarUVskin1.png", "avatarUVskin2.png", "avatarUVskin3.png"};
 
 		for (int i = 0; i < avatarTexs.length; i++){
 			avatarTexs[i] = new TextureImage(avatars[i]);
@@ -164,10 +160,10 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void buildObjects()
-	{	Matrix4f initialTranslation, initialScale, initialRotation;
+	{	Matrix4f initialTranslation, initialScale;
 
-		// build dolphin in the center of the window
-		avatar = new GameObject(GameObject.root(), avatarA, dolT);
+		// build avatar
+		avatar = new GameObject(GameObject.root(), avatarA, ballT);
 		initialTranslation = (new Matrix4f()).translation(-20,2,-20);
 		initialScale = (new Matrix4f()).scaling(.5f);
 		avatar.setLocalTranslation(initialTranslation);
@@ -175,11 +171,11 @@ public class MyGame extends VariableFrameRateGame
 
 
 		// -------------- adding two Spheres -----------------
-		ball1 = new GameObject(GameObject.root(), sphS, candT);
+		ball1 = new GameObject(GameObject.root(), sphS, ballT);
 		ball1.setLocalTranslation((new Matrix4f()).translation(0, 4, 0));
 		ball1.setLocalScale((new Matrix4f()).scaling(0.75f));
 
-		ball2 = new GameObject(GameObject.root(), sphS, candT);
+		ball2 = new GameObject(GameObject.root(), sphS, ballT);
 		ball2.setLocalTranslation((new Matrix4f()).translation(-0.5f, 1, 0));
 		ball2.setLocalScale((new Matrix4f()).scaling(0.75f));
 
@@ -246,7 +242,7 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public void initAudio() {
-		AudioResource resource1, resource2, resource3, resource4;
+		AudioResource resource1, resource3, resource4;
 		audioMgr = AudioManagerFactory.createAudioManager(
 		"tage.audio.joal.JOALAudioManager");
 		if (!audioMgr.initialize())
@@ -613,15 +609,6 @@ public class MyGame extends VariableFrameRateGame
 		} 
 	}
 
-
-	private void activatePrize(GameObject prize, double speed, float location)
-	{
-		Matrix4f currentTranslation = prize.getLocalTranslation();
-		currentTranslation.translation((float)Math.sin(Math.toRadians(timePerFrame * speed)) * location,
-			2f, (float)Math.cos(Math.toRadians(timePerFrame * speed)) * location);
-		prize.setLocalTranslation(currentTranslation);
-	}
-
 	private void setHeldActionToKeyboard(net.java.games.input.Component.Identifier.Key key, IAction action)
 	{
 		im.associateActionWithAllKeyboards(
@@ -631,9 +618,6 @@ public class MyGame extends VariableFrameRateGame
 	{
 		im.associateActionWithAllKeyboards(
 			key, action, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-	}
-	private void setPressedandReleasedActiontoKeyboard(net.java.games.input.Component.Identifier.Key key, IAction action) {
-		im.associateActionWithAllKeyboards(key, action, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 	}
 	private void setHeldButtonToGamepad(net.java.games.input.Component.Identifier button, IAction action)
 	{

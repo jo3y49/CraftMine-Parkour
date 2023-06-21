@@ -7,7 +7,7 @@ import javax.swing.border.TitledBorder;
 
 public class AvatarSelectionDialog extends JDialog implements ActionListener
 {
-    private String[] avatarPaths = {"assets/textures/avatar1.png", "assets/textures/avatar2.png", "assets/textures/avatar3.png", "assets/textures/avatar4.png"};
+    private String[] avatarPaths = {"assets/textures/avatar1.png", "assets/textures/avatar2.png", "assets/textures/avatar3.png"};
     private ImageIcon[] avatars;
     private JComboBox<ImageIcon> avatarComboBox;
     private int selectedIndex = 0;
