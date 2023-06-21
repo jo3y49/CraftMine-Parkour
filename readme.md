@@ -1,8 +1,34 @@
 # CraftMine Parkour
 
-A 3D platforming game, where the objective is to reach the highest block in the sky. Everytime you touch the block, you gain a point, and you must touch the ground before you can go back up and get another one. Watch out for the enemies in the middle! If they catch you, you will get launched.
+A 3D platforming game, where the objective is to reach the highest block in the sky. Everytime you touch the block, you gain a point, and you must touch the ground before you can go back up and get another one. Watch out for the enemies in the middle! If they catch you, you will get launched. You can also connect with other people on a local network and compete against them.
 
-## Features:
+## Controls:
+
+W: accelerates the player forward
+
+S: accelerates the player backwards
+
+A: turns the player left
+
+D: turns the player right
+
+Space: The player jumps
+
+X: jumps the player, but downwards instead of up
+
+Q: increase player move speed
+
+E: decrease player move speed
+
+P: toggle candle lights
+
+J: orbit camera left
+
+L: orbit camera right
+
+U: zoom in
+
+O: zoom out
 
 ## Screenshots:
 
@@ -18,7 +44,7 @@ An aerial shot
 
 <img src="screenshots\screen3.png"></img>
 
-## To Run:
+## How To Run:
 
 - Install Java, and add these files from the dependencies folder to CLASSPATH:
 
